@@ -40,7 +40,7 @@ def _visible_bug_queryset(request):
 
 
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'index.html')
 
 def register(request):
 
