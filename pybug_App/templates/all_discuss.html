@@ -1,0 +1,157 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Discussion | BTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4285F4;
+            --g-red: #EA4335;
+            --g-green: #34A853;
+            --g-yellow: #FBBC05;
+            --sidebar-width: 280px;
+            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            --bg-body: #000;
+            --card-bg: rgba(15, 15, 15, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --text-main: #f5f5f7;
+            --text-dim: #86868b;
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f5f5f7;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --text-main: #1d1d1f;
+            --text-dim: #6e6e73;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; background: var(--bg-body); 
+            color: var(--text-main); 
+            display: flex; min-height: 100vh;
+            transition: background 0.3s ease;
+        }
+
+        /* --- Sidebar & Content Layout --- */
+        .sidebar { width: var(--sidebar-width); position: fixed; height: 100%; border-right: 1px solid var(--glass-border); padding: 50px 0; background: rgba(10,10,10,0.4); backdrop-filter: blur(20px); display: flex; flex-direction: column; }
+        .sidebar h2 { 
+            font-family: 'Product Sans', sans-serif; 
+            padding: 0 35px; 
+            background: linear-gradient(135deg, var(--text-main), var(--text-dim));
+            -webkit-background-clip: text; 
+            background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            color: transparent; 
+        }
+        .sidebar a { padding: 15px 35px; display: block; color: var(--text-dim); text-decoration: none; font-size: 14px; transition: 0.3s; }
+        .sidebar a:hover { color: var(--text-main); }
+
+        /* Theme Toggle Button Style */
+        .theme-toggle-btn {
+            margin: auto 35px 30px 35px;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            cursor: pointer;
+            font-family: 'Product Sans';
+            font-size: 13px;
+            transition: 0.3s;
+        }
+        .theme-toggle-btn:hover { border-color: var(--primary); }
+
+        .content { margin-left: var(--sidebar-width); padding: 60px 80px; width: 100%; max-width: 1200px; }
+
+        /* --- Typography --- */
+        h2.bug-title { font-family: 'Product Sans'; font-size: 32px; letter-spacing: -1px; margin-bottom: 5px; }
+        p.bug-desc { color: var(--text-dim); line-height: 1.6; margin-bottom: 40px; }
+
+        /* --- Section Card --- */
+        .section-card {
+            background: var(--card-bg); border-radius: 24px; border: 1px solid var(--glass-border);
+            padding: 40px; position: relative; backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .section-card::before {
+            content: ""; 
+            position: absolute; 
+            inset: -1px; 
+            border-radius: 25px; 
+            padding: 1.5px; 
+            background: linear-gradient(135deg, var(--primary), var(--g-red), var(--g-yellow), var(--g-green));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out; 
+            mask-composite: exclude; 
+            opacity: 0.3; 
+            pointer-events: none;
+        }
+
+        /* --- Comments List (Role-Based Real Chat) --- */
+        .comment-box {
+            max-height: 450px; overflow-y: auto; padding-right: 15px; margin-bottom: 30px;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .comment-box::-webkit-scrollbar { width: 4px; }
+        .comment-box::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+
+        .comment-item {
+            max-width: 80%; padding: 15px 20px; border-radius: 18px;
+            position: relative; border: 1px solid var(--glass-border);
+        }
+
+        .comment-manager {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom-left-radius: 4px;
+        }
+
+        .comment-dev-tester {
+            align-self: flex-end;
+            background: rgba(66, 133, 244, 0.1);
+            border-color: rgba(66, 133, 244, 0.2);
+            border-bottom-right-radius: 4px;
+            text-align: right;
+        }
+
+        .comment-item b { color: var(--primary); font-size: 13px; display: block; margin-bottom: 4px; }
+        .comment-item p { margin: 0; font-size: 15px; line-height: 1.4; color: var(--text-main); }
+        .comment-item small { color: var(--text-dim); font-size: 10px; display: block; margin-top: 8px; text-transform: uppercase; }
+
+        /* --- Form Elements --- */
+        textarea {
+            width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+            border-radius: 14px; padding: 15px; color: var(--text-main); font-family: inherit;
+            resize: none; transition: 0.3s; margin-top: 15px;
+        }
+
+        textarea:focus { outline: none; border-color: var(--primary); background: rgba(66, 133, 244, 0.05); }
+
+        .btn-send {
+            background: var(--text-main); color: var(--bg-body); border: none;
+            padding: 12px 30px; border-radius: 12px; font-weight: 600; cursor: pointer;
+            transition: 0.3s; margin-top: 15px;
+        }
+
+        .btn-send:hover { transform: translateY(-2px); background: var(--primary); color: #fff; }
+        .back-link { display: inline-block; margin-top: 30px; color: var(--text-dim); text-decoration: none; font-size: 13px; }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+    {% block content %}
+
+    {% endblock %}
+</body>
+</html>

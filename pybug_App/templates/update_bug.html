@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Bug</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+<h2>Update Bug Status</h2>
+
+<h3>{{ bug.title }}</h3>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<label>Status</label>
+
+<select name="status">
+
+<option value="In Progress">In Progress</option>
+
+<option value="Resolved">Resolved</option>
+
+<option value="Closed">Closed</option>
+
+</select>
+
+<br><br>
+
+<button type="submit">
+Update Status
+</button>
+
+</form>
+
+</body>
+</html>

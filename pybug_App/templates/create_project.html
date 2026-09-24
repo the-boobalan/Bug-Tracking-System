@@ -1,0 +1,246 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="blue">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Project | Team Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #08090a;
+            --bg-surface: #111315;
+            --bg-input: #1a1d21;
+            
+            --brand-blue: #4285F4;
+            --brand-purple: #9333ea;
+            --brand-emerald: #34A853;
+            --accent: var(--brand-blue);
+            
+            /* Google Logo Colors */
+            --google-gradient: linear-gradient(135deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4);
+            
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+            --border: #2d3136;
+            --radius: 12px;
+        }
+
+        [data-theme="purple"] { --accent: var(--brand-purple); }
+        [data-theme="emerald"] { --accent: var(--brand-emerald); }
+
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            background: var(--bg-base); 
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* --- Outside Border Gradient Logic --- */
+        .wrapper {
+            position: relative;
+            background: var(--bg-surface);
+            padding: 50px;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 650px;
+            z-index: 1;
+            /* Create space for the outside border */
+            border: 1.5px solid transparent;
+            background-image: linear-gradient(var(--bg-surface), var(--bg-surface)), linear-gradient(var(--border), var(--border));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+        }
+
+        .wrapper:hover {
+            background-image: linear-gradient(var(--bg-surface), var(--bg-surface)), var(--google-gradient);
+            background-size: 400% 400%;
+            animation: gradientMove 3s infinite linear;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Content Layout --- */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+
+        h2 { font-size: 32px; font-weight: 800; margin: 0; letter-spacing: -1px; }
+        .subtitle { color: var(--text-muted); font-size: 15px; margin-top: 8px; }
+
+        .theme-switcher {
+            display: flex;
+            gap: 8px;
+            background: var(--bg-input);
+            padding: 6px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+        }
+        .swatch { width: 18px; height: 18px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .swatch.active { border-color: white; transform: scale(1.2); }
+
+        /* --- Input Styles --- */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .span-2 { grid-column: span 2; }
+
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--text-muted); }
+
+        .input-box {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .input-box:hover, .input-box:focus {
+            border-color: transparent;
+            background-image: linear-gradient(var(--bg-input), var(--bg-input)), var(--google-gradient);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        textarea { 
+            height: 110px; 
+            resize: none; 
+            /* Hide scrollbar for IE, Edge and Firefox */
+            -ms-overflow-style: none;  
+            scrollbar-width: none;  
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        textarea::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* --- Action Controls --- */
+        .footer-actions {
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        button:hover { filter: brightness(1.2); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+
+        .back-link { color: var(--text-muted); text-decoration: none; font-size: 14px; }
+        .back-link:hover { color: var(--accent); }
+
+        @media (max-width: 700px) {
+            body { padding: 16px; }
+            .container { padding: 24px 18px; }
+            .grid { grid-template-columns: 1fr; gap: 16px; }
+            .span-2 { grid-column: span 1; }
+            .footer-actions { flex-direction: column; align-items: stretch; gap: 14px; }
+            .footer-actions button, .back-link { width: 100%; text-align: center; }
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="header-section">
+        <div>
+            <h2>Create Project</h2>
+            <p class="subtitle">Initialize a new operational track in the system.</p>
+        </div>
+        
+        <div class="theme-switcher">
+            <div class="swatch active" style="background: var(--brand-blue);" onclick="setTheme('blue', this)"></div>
+            <div class="swatch" style="background: var(--brand-purple);" onclick="setTheme('purple', this)"></div>
+            <div class="swatch" style="background: var(--brand-emerald);" onclick="setTheme('emerald', this)"></div>
+        </div>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="grid">
+            <div class="input-group span-2">
+                <label>Project Name</label>
+                <input type="text" name="project_name" class="input-box" placeholder="e.g. AI Performance Analyzer" required>
+            </div>
+
+            <div class="input-group span-2">
+                <label>Description</label>
+                <textarea name="description" class="input-box" placeholder="Briefly describe the project scope..." required></textarea>
+            </div>
+
+            <div class="input-group span-2">
+                <label>Repository URL</label>
+                <input type="url" name="repository_link" class="input-box" placeholder="https://github.com/organization/project" required>
+            </div>
+
+            <div class="input-group">
+                <label>Assign Manager</label>
+                <select name="manager" class="input-box" required>
+                    <option value="" disabled selected>Select System Lead</option>
+                    {% for manager in managers %}
+                    <option value="{{ manager.id }}">{{ manager.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Deadline</label>
+                <input type="datetime-local" name="deadline" class="input-box" required>
+            </div>
+        </div>
+
+        <div class="footer-actions">
+            <a href="{% url 'admin_dashboard' %}" class="back-link">← Return to Command Center</a>
+            <button type="submit">Create Project</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function setTheme(themeName, element) {
+        document.documentElement.setAttribute('data-theme', themeName);
+        document.querySelectorAll('.swatch').forEach(sw => sw.classList.remove('active'));
+        element.classList.add('active');
+        localStorage.setItem('team-theme', themeName);
+    }
+
+    window.onload = () => {
+        const saved = localStorage.getItem('team-theme');
+        if (saved) {
+            const swatchToActivate = Array.from(document.querySelectorAll('.swatch')).find(sw => sw.getAttribute('onclick').includes(saved));
+            if (swatchToActivate) setTheme(saved, swatchToActivate);
+        }
+    };
+</script>
+
+</body>
+</html>

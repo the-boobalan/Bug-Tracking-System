@@ -1,0 +1,1452 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pybug Trackz — Professional Bug Tracking</title>
+{% load static %}
+<link rel="icon" type="image/png" href="{% static 'images/BTS.png' %}">
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════
+   TOKENS & VARIABLES
+════════════════════════════════════════ */
+:root {
+  --blue:       #2563EB;
+  --blue-light: #3B82F6;
+  --blue-glow:  rgba(37,99,235,0.35);
+  --cyan:       #06B6D4;
+  --violet:     #7C3AED;
+  --emerald:    #059669;
+  --amber:      #D97706;
+  --rose:       #DC2626;
+
+  --bg:         #05070F;
+  --bg-card:    rgba(255,255,255,0.028);
+  --bg-card-h:  rgba(255,255,255,0.055);
+  --border:     rgba(255,255,255,0.065);
+  --border-h:   rgba(37,99,235,0.45);
+  --text:       #EDF2FF;
+  --text-2:     #A0AABF;
+  --text-3:     #5A6480;
+
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+
+  --ease: cubic-bezier(0.22,1,0.36,1);
+  --ease-back: cubic-bezier(0.34,1.56,0.64,1);
+}
+[data-theme="light"] {
+  --bg:       #F8FAFF;
+  --bg-card:  rgba(255,255,255,0.9);
+  --bg-card-h:#FFFFFF;
+  --border:   rgba(0,0,0,0.07);
+  --border-h: rgba(37,99,235,0.3);
+  --text:     #0F1729;
+  --text-2:   #4A5568;
+  --text-3:   #9AA5BE;
+}
+
+/* ════════════════════════════════════════
+   RESET & BASE
+════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background .4s,color .4s;
+  cursor:default;
+}
+
+/* ── Canvas BG ── */
+#bg-canvas{
+  position:fixed;inset:0;
+  z-index:0;pointer-events:none;
+  opacity:.6;
+}
+
+/* ── Noise grain overlay ── */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size:200px 200px;
+  pointer-events:none;z-index:1;
+  mix-blend-mode:overlay;
+}
+
+/* ════════════════════════════════════════
+   CURSOR
+════════════════════════════════════════ */
+.cursor{
+  position:fixed;
+  width:10px;height:10px;
+  background:var(--blue-light);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:transform .1s,width .3s var(--ease),height .3s var(--ease),opacity .3s;
+  mix-blend-mode:screen;
+}
+.cursor-ring{
+  position:fixed;
+  width:36px;height:36px;
+  border:1.5px solid rgba(59,130,246,0.45);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:transform .25s var(--ease),width .4s var(--ease),height .4s var(--ease),border-color .3s;
+}
+.cursor.hovered{width:6px;height:6px;opacity:.5}
+.cursor-ring.hovered{width:56px;height:56px;border-color:rgba(59,130,246,0.7)}
+
+/* ════════════════════════════════════════
+   NAVBAR
+════════════════════════════════════════ */
+header{
+  position:fixed;top:0;left:0;right:0;
+  z-index:500;
+  padding:0 2rem;
+}
+.nav-inner{
+  max-width:1300px;
+  margin:16px auto 0;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(5,7,15,0.65);
+  backdrop-filter:blur(28px) saturate(160%);
+  -webkit-backdrop-filter:blur(28px) saturate(160%);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:12px 20px;
+  transition:background .4s,border .4s;
+}
+[data-theme="light"] .nav-inner{
+  background:rgba(248,250,255,0.82);
+}
+
+.logo{
+  display:flex;align-items:center;gap:10px;
+  text-decoration:none;
+}
+.logo-mark{
+  position:relative;
+  width:36px;height:36px;
+  border-radius:10px;
+  background:linear-gradient(135deg,var(--blue),var(--violet));
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;
+  box-shadow:0 4px 20px var(--blue-glow);
+  flex-shrink:0;
+}
+.logo-mark::after{
+  content:'';position:absolute;inset:-1px;
+  border-radius:11px;
+  background:linear-gradient(135deg,var(--blue),var(--violet));
+  z-index:-1;filter:blur(8px);opacity:.5;
+}
+.logo-name{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:1.15rem;font-weight:800;
+  letter-spacing:-0.3px;color:var(--text);
+}
+.logo-name em{color:var(--blue-light);font-style:normal;}
+
+.nav-links{
+  display:flex;gap:2px;list-style:none;
+}
+.nav-links a{
+  display:block;padding:7px 15px;
+  text-decoration:none;
+  font-size:13.5px;font-weight:500;
+  color:var(--text-2);
+  border-radius:9px;
+  transition:color .2s,background .2s;
+  letter-spacing:0.1px;
+}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.06)}
+[data-theme="light"] .nav-links a:hover{background:rgba(0,0,0,0.05)}
+
+.nav-end{display:flex;align-items:center;gap:10px}
+
+.btn-theme{
+  all:unset;
+  cursor:pointer;
+  width:36px;height:36px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+  transition:border .2s,background .2s,transform .2s var(--ease-back);
+}
+.btn-theme:hover{
+  border-color:var(--border-h);
+  background:rgba(37,99,235,0.08);
+  transform:rotate(20deg) scale(1.1);
+}
+
+.btn-cta{
+  display:inline-flex;align-items:center;gap:7px;
+  text-decoration:none;
+  background:var(--blue);
+  color:#fff;
+  padding:9px 22px;
+  border-radius:11px;
+  font-weight:600;font-size:13.5px;
+  letter-spacing:0.1px;
+  box-shadow:0 0 30px var(--blue-glow);
+  transition:background .2s,box-shadow .2s,transform .2s var(--ease-back);
+  position:relative;overflow:hidden;
+}
+.btn-cta::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.15));
+  opacity:0;transition:opacity .3s;
+}
+.btn-cta:hover{
+  background:#1D4ED8;
+  box-shadow:0 4px 36px var(--blue-glow);
+  transform:translateY(-2px);
+}
+.btn-cta:hover::before{opacity:1}
+
+/* ════════════════════════════════════════
+   PAGE WRAPPER
+════════════════════════════════════════ */
+.page{position:relative;z-index:2;padding-top:100px;}
+
+/* ════════════════════════════════════════
+   SECTION UTILS
+════════════════════════════════════════ */
+.wrap{max-width:1180px;margin:0 auto;padding:0 2rem;}
+.section{padding:100px 0;}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:2.5px;
+  color:var(--blue-light);
+  margin-bottom:16px;
+}
+.eyebrow::before,.eyebrow::after{
+  content:'';flex:1;
+  height:1px;width:28px;
+  background:linear-gradient(90deg,transparent,var(--blue-light));
+}
+.eyebrow::after{background:linear-gradient(90deg,var(--blue-light),transparent)}
+
+.section-h{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:clamp(2rem,4.5vw,3rem);
+  font-weight:900;
+  letter-spacing:-1.2px;
+  line-height:1.08;
+  margin-bottom:18px;
+}
+.section-sub{
+  font-size:1.02rem;color:var(--text-2);
+  max-width:520px;line-height:1.75;
+  font-weight:400;
+}
+.text-center{text-align:center}
+.text-center .section-sub{margin:0 auto}
+
+/* ════════════════════════════════════════
+   HERO
+════════════════════════════════════════ */
+.hero{
+  padding:120px 0 100px;
+  text-align:center;
+  position:relative;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(37,99,235,0.1);
+  border:1px solid rgba(37,99,235,0.25);
+  color:var(--blue-light);
+  padding:6px 16px 6px 10px;
+  border-radius:50px;
+  font-size:12.5px;font-weight:600;
+  margin-bottom:36px;
+  backdrop-filter:blur(8px);
+}
+.hero-badge-dot{
+  width:20px;height:20px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;
+}
+.hero-badge-pulse{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 0 0 rgba(6,182,212,.6);
+  animation:heartbeat 2s infinite;
+}
+@keyframes heartbeat{
+  0%{box-shadow:0 0 0 0 rgba(6,182,212,.6)}
+  70%{box-shadow:0 0 0 8px rgba(6,182,212,0)}
+  100%{box-shadow:0 0 0 0 rgba(6,182,212,0)}
+}
+
+.hero-title{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:clamp(3rem,7vw,5.2rem);
+  font-weight:900;
+  letter-spacing:-2.5px;
+  line-height:1.04;
+  margin-bottom:28px;
+  max-width:820px;margin-left:auto;margin-right:auto;
+  
+}
+
+
+.hero-title .word-blue{
+    text-decoration: none;
+  position:relative; 
+  background:linear-gradient(90deg,var(--blue-light),var(--cyan));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.hero-title .word-blue::after{
+  content:'';
+  position:absolute;bottom:-4px;left:0;right:0;
+  height:3px;border-radius:2px;
+  background:linear-gradient(90deg,var(--blue-light),var(--cyan));
+  opacity:0.1;
+}
+
+
+
+.hero-sub{
+  font-size:1.15rem;color:var(--text-2);
+  max-width:580px;margin:0 auto 44px;
+  line-height:1.75;font-weight:400;
+}
+
+.hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+.btn-hero{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:15px 34px;border-radius:13px;
+  font-size:15px;font-weight:600;
+  text-decoration:none;
+  transition:all .25s var(--ease);
+  letter-spacing:0.1px;
+}
+.btn-hero-fill{
+  background:var(--blue);color:#fff;
+  box-shadow:0 0 48px var(--blue-glow),inset 0 1px 0 rgba(255,255,255,.15);
+  position:relative;overflow:hidden;
+}
+.btn-hero-fill::after{
+  content:'';position:absolute;top:-50%;left:-60%;
+  width:40%;height:200%;
+  background:rgba(255,255,255,.18);
+  transform:skewX(-20deg);
+  animation:shimmer 3s infinite;
+}
+@keyframes shimmer{
+  0%{left:-60%}60%,100%{left:120%}
+}
+.btn-hero-fill:hover{transform:translateY(-3px);box-shadow:0 8px 60px var(--blue-glow)}
+.btn-hero-outline{
+  background:transparent;color:var(--text);
+  border:1px solid var(--border);
+  backdrop-filter:blur(8px);
+}
+.btn-hero-outline:hover{border-color:var(--border-h);transform:translateY(-3px);background:rgba(255,255,255,.04)}
+
+/* ─ Hero stats strip ─ */
+.hero-stats{
+  display:flex;justify-content:center;gap:0;
+  margin:72px auto 0;max-width:760px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  backdrop-filter:blur(16px);
+  overflow:hidden;
+}
+.hs-item{
+  flex:1;padding:26px 20px;text-align:center;
+  border-right:1px solid var(--border);
+  position:relative;overflow:hidden;
+  transition:background .3s;
+}
+.hs-item:last-child{border-right:none}
+.hs-item:hover{background:var(--bg-card-h)}
+.hs-item::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--blue),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.hs-item:hover::before{opacity:1}
+.hs-num{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:1.9rem;font-weight:900;
+  letter-spacing:-1px;
+  background:linear-gradient(135deg,var(--text),var(--blue-light));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:4px;
+}
+.hs-label{font-size:11.5px;color:var(--text-3);font-weight:600;letter-spacing:.3px}
+
+/* ════════════════════════════════════════
+   ABOUT BENTO
+════════════════════════════════════════ */
+.bento{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  grid-template-rows:auto;
+  gap:14px;
+}
+.b-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:32px;
+  position:relative;overflow:hidden;
+  transition:background .3s,border-color .3s,transform .35s var(--ease),box-shadow .35s var(--ease);
+}
+.b-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);
+}
+.b-card:hover{
+  background:var(--bg-card-h);
+  border-color:var(--border-h);
+  transform:translateY(-6px);
+  box-shadow:0 24px 60px rgba(0,0,0,.4),0 0 0 1px var(--border-h);
+}
+[data-theme="light"] .b-card{background:rgba(255,255,255,.85)}
+[data-theme="light"] .b-card:hover{background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.1)}
+
+.b-span-5{grid-column:span 5}
+.b-span-7{grid-column:span 7}
+.b-span-4{grid-column:span 4}
+.b-span-8{grid-column:span 8}
+.b-span-6{grid-column:span 6}
+.b-span-12{grid-column:span 12}
+
+.b-emoji{font-size:2.4rem;margin-bottom:18px;display:block;line-height:1}
+.b-title{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:1.15rem;font-weight:800;
+  letter-spacing:-.3px;margin-bottom:10px;
+}
+.b-desc{font-size:.875rem;color:var(--text-2);line-height:1.7}
+
+/* glow accent cards */
+.b-accent-blue::after{
+  content:'';position:absolute;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(37,99,235,.15) 0%,transparent 70%);
+  bottom:-60px;right:-60px;pointer-events:none;
+}
+.b-accent-violet::after{
+  content:'';position:absolute;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,58,237,.12) 0%,transparent 70%);
+  bottom:-60px;right:-60px;pointer-events:none;
+}
+
+/* ════════════════════════════════════════
+   WORKFLOW TIMELINE
+════════════════════════════════════════ */
+.wf-track{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:0;
+  position:relative;
+  margin-bottom:40px;
+}
+.wf-track::before{
+  content:'';
+  position:absolute;
+  top:26px;left:10%;right:10%;
+  height:2px;
+  background:linear-gradient(90deg,
+    var(--rose) 0%,
+    var(--amber) 25%,
+    var(--blue-light) 50%,
+    var(--violet) 75%,
+    var(--emerald) 100%);
+  z-index:0;
+  border-radius:2px;
+}
+.wf-step{
+  display:flex;flex-direction:column;align-items:center;
+  gap:14px;position:relative;z-index:1;
+  cursor:pointer;
+}
+.wf-node{
+  width:52px;height:52px;border-radius:50%;
+  border:2px solid;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:1rem;font-weight:900;
+  background:var(--bg);
+  transition:transform .35s var(--ease-back),box-shadow .35s var(--ease);
+}
+[data-theme="light"] .wf-node{background:var(--bg)}
+.wf-step:hover .wf-node{
+  transform:scale(1.18);
+}
+.wf-s1 .wf-node{border-color:var(--rose);color:var(--rose);box-shadow:0 0 0 0 rgba(220,38,38,.3)}
+.wf-s2 .wf-node{border-color:var(--amber);color:var(--amber)}
+.wf-s3 .wf-node{border-color:var(--blue-light);color:var(--blue-light)}
+.wf-s4 .wf-node{border-color:var(--violet);color:var(--violet)}
+.wf-s5 .wf-node{border-color:var(--emerald);color:var(--emerald)}
+
+.wf-step:hover .wf-s1 .wf-node{box-shadow:0 0 20px rgba(220,38,38,.4)}
+.wf-step:hover .wf-s2 .wf-node{box-shadow:0 0 20px rgba(217,119,6,.4)}
+.wf-step:hover .wf-s3 .wf-node{box-shadow:0 0 20px rgba(59,130,246,.4)}
+.wf-step:hover .wf-s4 .wf-node{box-shadow:0 0 20px rgba(124,58,237,.4)}
+.wf-step:hover .wf-s5 .wf-node{box-shadow:0 0 20px rgba(5,150,105,.4)}
+
+.wf-info{text-align:center}
+.wf-name{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:.85rem;font-weight:800;
+  letter-spacing:.3px;margin-bottom:4px;
+}
+.wf-desc{font-size:11px;color:var(--text-3);line-height:1.5;max-width:100px;margin:0 auto}
+
+.wf-cards{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:10px;
+}
+.wf-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--r-md);padding:20px 16px;text-align:center;
+  transition:all .3s var(--ease);cursor:default;
+}
+.wf-card:hover{transform:translateY(-5px);border-color:var(--border-h)}
+.wf-icon{font-size:1.5rem;margin-bottom:8px}
+.wf-tag{
+  display:inline-block;
+  font-size:9.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;
+  padding:3px 10px;border-radius:20px;margin-bottom:10px;
+}
+.tag-rose   {background:rgba(220,38,38,.12);color:var(--rose)}
+.tag-amber  {background:rgba(217,119,6,.12);color:var(--amber)}
+.tag-blue   {background:rgba(59,130,246,.12);color:var(--blue-light)}
+.tag-violet {background:rgba(124,58,237,.12);color:var(--violet)}
+.tag-emerald{background:rgba(5,150,105,.12);color:var(--emerald)}
+.wf-card-desc{font-size:11px;color:var(--text-2);line-height:1.5}
+
+/* ════════════════════════════════════════
+   FEATURE TILES
+════════════════════════════════════════ */
+.feat-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--border);
+  border-radius:var(--r-xl);
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+.feat-tile{
+  background:var(--bg);
+  padding:40px 36px;
+  position:relative;overflow:hidden;
+  transition:background .3s;
+  cursor:default;
+}
+[data-theme="light"] .feat-tile{background:rgba(255,255,255,.9)}
+.feat-tile:hover{background:var(--bg-card-h)}
+[data-theme="light"] .feat-tile:hover{background:#fff}
+
+/* top shimmer line */
+.feat-tile::after{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  opacity:0;transition:opacity .4s;
+}
+.ft-blue::after   {background:linear-gradient(90deg,transparent,var(--blue-light),transparent)}
+.ft-cyan::after   {background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+.ft-violet::after {background:linear-gradient(90deg,transparent,var(--violet),transparent)}
+.ft-emerald::after{background:linear-gradient(90deg,transparent,var(--emerald),transparent)}
+.ft-amber::after  {background:linear-gradient(90deg,transparent,var(--amber),transparent)}
+.ft-rose::after   {background:linear-gradient(90deg,transparent,var(--rose),transparent)}
+.feat-tile:hover::after{opacity:1}
+
+/* corner glow */
+.feat-tile .corner-glow{
+  position:absolute;bottom:-40px;right:-40px;
+  width:120px;height:120px;border-radius:50%;
+  opacity:0;transition:opacity .4s;pointer-events:none;
+}
+.ft-blue   .corner-glow{background:radial-gradient(circle,rgba(37,99,235,.18) 0%,transparent 70%)}
+.ft-cyan   .corner-glow{background:radial-gradient(circle,rgba(6,182,212,.15) 0%,transparent 70%)}
+.ft-violet .corner-glow{background:radial-gradient(circle,rgba(124,58,237,.18) 0%,transparent 70%)}
+.ft-emerald.corner-glow{background:radial-gradient(circle,rgba(5,150,105,.15) 0%,transparent 70%)}
+.feat-tile:hover .corner-glow{opacity:1}
+
+.feat-ico{
+  width:46px;height:46px;border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;margin-bottom:20px;
+}
+.ico-blue   {background:rgba(37,99,235,.1)}
+.ico-cyan   {background:rgba(6,182,212,.1)}
+.ico-violet {background:rgba(124,58,237,.1)}
+.ico-emerald{background:rgba(5,150,105,.1)}
+.ico-amber  {background:rgba(217,119,6,.1)}
+.ico-rose   {background:rgba(220,38,38,.1)}
+
+.feat-name{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:1.05rem;font-weight:800;letter-spacing:-.2px;
+  margin-bottom:10px;
+}
+.feat-desc{font-size:.875rem;color:var(--text-2);line-height:1.68}
+
+/* ════════════════════════════════════════
+   PRIORITY TABLE
+════════════════════════════════════════ */
+.prio-list{
+  display:flex;flex-direction:column;gap:12px;
+}
+.prio-row{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;gap:20px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--r-md);
+  padding:22px 28px;
+  transition:all .3s var(--ease);
+  cursor:default;
+}
+.prio-row:hover{
+  border-color:var(--border-h);
+  transform:translateX(6px);
+  background:var(--bg-card-h);
+}
+.prio-left{display:flex;align-items:center;gap:14px}
+.prio-badge{
+  font-size:10px;font-weight:800;
+  text-transform:uppercase;letter-spacing:1.5px;
+  padding:5px 14px;border-radius:50px;
+  white-space:nowrap;
+}
+.pb-crit{background:rgba(220,38,38,.12);color:var(--rose);border:1px solid rgba(220,38,38,.2)}
+.pb-high{background:rgba(217,119,6,.12);color:var(--amber);border:1px solid rgba(217,119,6,.2)}
+.pb-med {background:rgba(37,99,235,.12);color:var(--blue-light);border:1px solid rgba(37,99,235,.2)}
+.pb-low {background:rgba(5,150,105,.12);color:var(--emerald);border:1px solid rgba(5,150,105,.2)}
+
+.prio-emoji{font-size:1.3rem}
+.prio-title{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:.95rem;font-weight:800;margin-bottom:3px;
+}
+.prio-desc{font-size:.82rem;color:var(--text-2);line-height:1.5}
+.prio-sla{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:.78rem;font-weight:700;color:var(--text-3);
+  text-align:right;white-space:nowrap;
+}
+
+/* ════════════════════════════════════════
+   ROLES
+════════════════════════════════════════ */
+.roles-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+.role-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:32px 24px 28px;
+  text-align:center;
+  position:relative;overflow:hidden;
+  transition:all .4s var(--ease);
+  cursor:default;
+}
+.role-card::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,transparent 60%,rgba(255,255,255,.02));
+  pointer-events:none;
+}
+.role-card:hover{
+  transform:translateY(-10px) scale(1.01);
+  border-color:var(--border-h);
+  box-shadow:0 32px 64px rgba(0,0,0,.5);
+}
+[data-theme="light"] .role-card:hover{box-shadow:0 32px 64px rgba(0,0,0,.12)}
+
+.role-avatar{
+  width:64px;height:64px;border-radius:50%;
+  margin:0 auto 18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;position:relative;
+}
+.ra-admin  {background:rgba(220,38,38,.1);box-shadow:0 0 0 8px rgba(220,38,38,.06)}
+.ra-manager{background:rgba(217,119,6,.1);box-shadow:0 0 0 8px rgba(217,119,6,.06)}
+.ra-dev    {background:rgba(37,99,235,.1);box-shadow:0 0 0 8px rgba(37,99,235,.06)}
+.ra-tester {background:rgba(5,150,105,.1);box-shadow:0 0 0 8px rgba(5,150,105,.06)}
+
+.role-name{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:1.05rem;font-weight:800;margin-bottom:8px;
+}
+.role-tier{
+  display:inline-block;
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.2px;
+  padding:3px 12px;border-radius:20px;margin-bottom:20px;
+}
+.rt-admin  {background:rgba(220,38,38,.1);color:var(--rose)}
+.rt-manager{background:rgba(217,119,6,.1);color:var(--amber)}
+.rt-dev    {background:rgba(37,99,235,.1);color:var(--blue-light)}
+.rt-tester {background:rgba(5,150,105,.1);color:var(--emerald)}
+
+.role-perms{list-style:none;text-align:left}
+.role-perms li{
+  font-size:12.5px;color:var(--text-2);
+  padding:6px 0;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.role-perms li:last-child{border-bottom:none}
+.role-perms li::before{
+  content:'';
+  width:5px;height:5px;border-radius:50%;
+  background:var(--blue-light);flex-shrink:0;
+}
+
+/* ════════════════════════════════════════
+   TECH STACK
+════════════════════════════════════════ */
+.tech-marquee-wrap{
+  overflow:hidden;
+  -webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+}
+.tech-marquee{
+  display:flex;gap:14px;
+  animation:marquee 25s linear infinite;
+  width:max-content;
+}
+.tech-marquee:hover{animation-play-state:paused}
+@keyframes marquee{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+.tech-pill{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:50px;
+  padding:11px 22px;
+  white-space:nowrap;
+  font-size:13.5px;font-weight:500;color:var(--text-2);
+  transition:all .25s var(--ease);
+  cursor:default;
+}
+.tech-pill:hover{
+  border-color:var(--border-h);color:var(--text);
+  transform:translateY(-4px);
+  box-shadow:0 8px 24px rgba(0,0,0,.3);
+}
+.tech-pill-icon{
+  width:26px;height:26px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;background:var(--bg-card-h);
+}
+
+/* ════════════════════════════════════════
+   CTA BANNER
+════════════════════════════════════════ */
+.cta-banner{
+  background:linear-gradient(135deg,rgba(37,99,235,.12) 0%,rgba(124,58,237,.1) 100%);
+  border:1px solid rgba(37,99,235,.25);
+  border-radius:var(--r-xl);
+  padding:90px 40px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta-banner::before{
+  content:'';
+  position:absolute;
+  width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(37,99,235,.08) 0%,transparent 60%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+.cta-banner h2{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:clamp(1.8rem,4vw,3rem);
+  font-weight:900;letter-spacing:-1.2px;
+  margin-bottom:18px;
+}
+.cta-banner p{
+  color:var(--text-2);font-size:1.05rem;
+  max-width:500px;margin:0 auto 40px;line-height:1.7;
+}
+
+/* ════════════════════════════════════════
+   CONTACT
+════════════════════════════════════════ */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.contact-card{
+  display:flex;align-items:center;gap:20px;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:30px 32px;
+  transition:all .3s var(--ease);
+  cursor:default;
+}
+.contact-card:hover{
+  border-color:var(--border-h);
+  transform:translateY(-5px);
+  box-shadow:0 20px 48px rgba(0,0,0,.4);
+}
+[data-theme="light"] .contact-card:hover{box-shadow:0 20px 48px rgba(0,0,0,.08)}
+.contact-ico{
+  width:50px;height:50px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(37,99,235,.15),rgba(124,58,237,.1));
+  border:1px solid rgba(37,99,235,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.contact-type{
+  font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--text-3);margin-bottom:5px;
+}
+.contact-val{
+  font-family:'Cabinet Grotesk',sans-serif;
+  font-size:1.05rem;font-weight:700;color:var(--text);
+}
+
+/* ════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════ */
+footer{
+  position:relative;z-index:2;
+  border-top:1px solid var(--border);
+  padding:36px 2rem;
+}
+.footer-inner{
+  max-width:1180px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;
+}
+.footer-copy{font-size:13px;color:var(--text-3)}
+.footer-copy strong{color:var(--text-2)}
+.footer-nav{display:flex;gap:20px}
+.footer-nav a{
+  font-size:13px;color:var(--text-3);text-decoration:none;
+  transition:color .2s;
+}
+.footer-nav a:hover{color:var(--blue-light)}
+
+/* ════════════════════════════════════════
+   ANIMATIONS / SCROLL REVEAL
+════════════════════════════════════════ */
+.reveal{
+  opacity:0;transform:translateY(40px);
+  transition:opacity .8s var(--ease),transform .8s var(--ease);
+}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:.1s}
+.reveal-d2{transition-delay:.2s}
+.reveal-d3{transition-delay:.3s}
+.reveal-d4{transition-delay:.4s}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+@media(max-width:1024px){
+  .feat-grid{grid-template-columns:repeat(2,1fr)}
+  .roles-grid{grid-template-columns:repeat(2,1fr)}
+  .b-span-5,.b-span-7,.b-span-4,.b-span-8{grid-column:span 12}
+  .wf-track{grid-template-columns:repeat(3,1fr);gap:20px}
+  .wf-track::before{display:none}
+  .wf-cards{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:768px){
+  header{padding:0 1rem}
+  .nav-links{display:none}
+  .hero-stats{flex-direction:column;max-width:320px}
+  .hs-item{border-right:none;border-bottom:1px solid var(--border)}
+  .hs-item:last-child{border-bottom:none}
+  .feat-grid{grid-template-columns:1fr}
+  .roles-grid{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr}
+  .wf-cards{grid-template-columns:1fr 1fr}
+  .wf-track{grid-template-columns:1fr 1fr}
+  .prio-row{grid-template-columns:1fr;gap:12px}
+  .prio-sla{text-align:left}
+  footer .footer-inner{flex-direction:column;text-align:center}
+}
+</style>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+<!-- Canvas for animated BG -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Custom cursor (desktop only) -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- ══════════ NAVBAR ══════════ -->
+<header>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-mark">🕷️</div>
+      <span class="logo-name">Pybug <em>Trackz</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#workflow">Lifecycle</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#roles">Roles</a></li>
+      <li><a href="#stack">Stack</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-end">
+      <button class="btn-theme" id="themeToggle" title="Toggle theme">🌙</button>
+      <a href="{% url 'login' %}" class="btn-cta">Login <span>→</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-badge">
+      <span class="hero-badge-dot">🕷️</span>
+      <span class="hero-badge-pulse"></span>
+      PyBug Trackz
+    </div>
+    <h1 class="hero-title reveal">
+      Ship Faster.<br>
+      <span class="word-blue">Squash Bugs</span><br>
+      Confidently.
+    </h1>
+    <p class="hero-sub reveal reveal-d1">
+      Pybug Trackz is a professional bug tracking system that gives your team structured control over every issue — from first report to final close.
+    </p>
+    <div class="hero-actions reveal reveal-d2">
+      <a href="{% url 'login' %}" class="btn-hero btn-hero-fill">
+        Get Started Free <span>→</span>
+      </a>
+      <a href="#features" class="btn-hero btn-hero-outline">
+        ⚡ Explore Features
+      </a>
+    </div>
+
+    <div class="hero-stats reveal reveal-d3">
+      <div class="hs-item">
+        <div class="hs-num">5</div>
+        <div class="hs-label">Lifecycle Stages</div>
+      </div>
+      <div class="hs-item">
+        <div class="hs-num">4</div>
+        <div class="hs-label">Role Tiers</div>
+      </div>
+      <div class="hs-item">
+        <div class="hs-num">∞</div>
+        <div class="hs-label">Projects</div>
+      </div>
+      <div class="hs-item">
+        <div class="hs-num">100%</div>
+        <div class="hs-label">Responsive</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ABOUT BENTO ══════════ -->
+<section id="about" class="section">
+  <div class="wrap">
+    <div class="text-center reveal" style="margin-bottom:56px">
+      <div class="eyebrow">About the Platform</div>
+      <h2 class="section-h">Why Choose Pybug Trackz?</h2>
+      <p class="section-sub">A full-stack solution engineered for real development teams who need clarity, structure, and speed at every stage of the bug lifecycle.</p>
+    </div>
+
+    <div class="bento reveal">
+      <div class="b-card b-span-7 b-accent-blue">
+        <span class="b-emoji">🎯</span>
+        <div class="b-title">Built for Real-World Dev Teams</div>
+        <p class="b-desc">Pybug Trackz was engineered to eliminate the exact pain points dev teams hit daily — unclear ownership, stale statuses, scattered reports. One platform. Full clarity.</p>
+      </div>
+      <div class="b-card b-span-5 b-accent-violet">
+        <span class="b-emoji">🔐</span>
+        <div class="b-title">Precision Role Access</div>
+        <p class="b-desc">Every team member sees exactly what they need — nothing more. Permissions are scoped tightly to each role to eliminate confusion and protect project data.</p>
+      </div>
+      <div class="b-card b-span-4">
+        <span class="b-emoji">📊</span>
+        <div class="b-title">Live Project Dashboard</div>
+        <p class="b-desc">Charts, counts, and progress snapshots across all your active projects — visible at a glance for any manager or admin.</p>
+      </div>
+      <div class="b-card b-span-4">
+        <span class="b-emoji">🐍</span>
+        <div class="b-title">Django-Powered Core</div>
+        <p class="b-desc">Built on Django's proven, secure framework with ORM-driven data management, CSRF protection, and session-based auth baked in from day one.</p>
+      </div>
+      <div class="b-card b-span-4">
+        <span class="b-emoji">🔔</span>
+        <div class="b-title">Smart Notifications</div>
+        <p class="b-desc">Real-time alerts on assignments, status changes, and project events. Your team stays synced without constant manual checking.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ WORKFLOW ══════════ -->
+<section id="workflow" class="section" style="background:var(--bg-card);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <div class="text-center reveal" style="margin-bottom:60px">
+      <div class="eyebrow">Bug Lifecycle</div>
+      <h2 class="section-h">From Open to Closed — Nothing Slips</h2>
+      <p class="section-sub">Every bug follows a strict, trackable 5-stage lifecycle. Visibility at every step, for every role.</p>
+    </div>
+
+    <div class="wf-track reveal">
+      <div class="wf-step wf-s1">
+        <div class="wf-node">1</div>
+        <div class="wf-info">
+          <div class="wf-name" style="color:var(--rose)">Open</div>
+          <div class="wf-desc">Reported, awaiting triage</div>
+        </div>
+      </div>
+      <div class="wf-step wf-s2">
+        <div class="wf-node">2</div>
+        <div class="wf-info">
+          <div class="wf-name" style="color:var(--amber)">Assigned</div>
+          <div class="wf-desc">Dev picked up the issue</div>
+        </div>
+      </div>
+      <div class="wf-step wf-s3">
+        <div class="wf-node">3</div>
+        <div class="wf-info">
+          <div class="wf-name" style="color:var(--blue-light)">Resolved</div>
+          <div class="wf-desc">Fix submitted for review</div>
+        </div>
+      </div>
+      <div class="wf-step wf-s4">
+        <div class="wf-node">4</div>
+        <div class="wf-info">
+          <div class="wf-name" style="color:var(--violet)">Verified</div>
+          <div class="wf-desc">QA confirmed the fix</div>
+        </div>
+      </div>
+      <div class="wf-step wf-s5">
+        <div class="wf-node">5</div>
+        <div class="wf-info">
+          <div class="wf-name" style="color:var(--emerald)">Closed</div>
+          <div class="wf-desc">Bug fully resolved</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wf-cards reveal" style="margin-top:32px">
+      <div class="wf-card">
+        <div class="wf-icon">🔴</div>
+        <span class="wf-tag tag-rose">Open</span>
+        <p class="wf-card-desc">Bug reported and logged. Awaiting manager assignment to a developer.</p>
+      </div>
+      <div class="wf-card">
+        <div class="wf-icon">🟡</div>
+        <span class="wf-tag tag-amber">Assigned</span>
+        <p class="wf-card-desc">Developer notified and actively working on reproducing and fixing the issue.</p>
+      </div>
+      <div class="wf-card">
+        <div class="wf-icon">🔵</div>
+        <span class="wf-tag tag-blue">Resolved</span>
+        <p class="wf-card-desc">Fix committed. Awaiting tester verification before the ticket closes.</p>
+      </div>
+      <div class="wf-card">
+        <div class="wf-icon">🟣</div>
+        <span class="wf-tag tag-violet">Verified</span>
+        <p class="wf-card-desc">Tester confirmed fix works as expected. Manager can now close the bug.</p>
+      </div>
+      <div class="wf-card">
+        <div class="wf-icon">🟢</div>
+        <span class="wf-tag tag-emerald">Closed</span>
+        <p class="wf-card-desc">Bug officially closed. Archived in project history for audit and reference.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FEATURES ══════════ -->
+<section id="features" class="section">
+  <div class="wrap">
+    <div class="text-center reveal" style="margin-bottom:56px">
+      <div class="eyebrow">Core Features</div>
+      <h2 class="section-h">Everything Your Team Needs</h2>
+      <p class="section-sub">A complete toolkit for managing bugs, coordinating teams, and shipping higher-quality software — faster.</p>
+    </div>
+    <div class="feat-grid reveal">
+      <div class="feat-tile ft-blue">
+        <div class="corner-glow"></div>
+        <div class="feat-ico ico-blue">🐛</div>
+        <div class="feat-name">Bug Lifecycle Management</div>
+        <p class="feat-desc">Log, assign, and track every bug through its full 5-stage lifecycle with timestamped status updates and audit history.</p>
+      </div>
+      <div class="feat-tile ft-cyan">
+        <div class="corner-glow"></div>
+        <div class="feat-ico ico-cyan">👥</div>
+        <div class="feat-name">Role-Based Access Control</div>
+        <p class="feat-desc">Admins, Managers, Developers, and Testers each get a tailored dashboard with permissions scoped precisely to their function.</p>
+      </div>
+      <div class="feat-tile ft-violet">
+        <div class="corner-glow"></div>
+        <div class="feat-ico ico-violet">📊</div>
+        <div class="feat-name">Project Dashboard</div>
+        <p class="feat-desc">Visual charts and live bug statistics per project give managers an instant snapshot of team velocity and open issues.</p>
+      </div>
+      <div class="feat-tile ft-amber">
+        <div class="corner-glow"></div>
+        <div class="feat-ico ico-amber">🔔</div>
+        <div class="feat-name">Notifications & Alerts</div>
+        <p class="feat-desc">Automated alerts on assignments, status changes, and project updates keep every team member in sync without manual checks.</p>
+      </div>
+      <div class="feat-tile ft-emerald">
+        <div class="corner-glow"></div>
+        <div class="feat-ico ico-emerald">🔒</div>
+        <div class="feat-name">Secure Authentication</div>
+        <p class="feat-desc">Django's session security, CSRF protection, and hashed credentials ensure only authorized users can access your project data.</p>
+      </div>
+      <div class="feat-tile ft-rose">
+        <div class="corner-glow"></div>
+        <div class="feat-ico ico-rose">📱</div>
+        <div class="feat-name">Fully Responsive</div>
+        <p class="feat-desc">Pixel-perfect across desktop, tablet, and mobile. Your team can report, review, and resolve bugs from anywhere, any device.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ PRIORITY SYSTEM ══════════ -->
+<section class="section" style="background:linear-gradient(180deg,transparent,rgba(37,99,235,.04),transparent)">
+  <div class="wrap">
+    <div class="text-center reveal" style="margin-bottom:56px">
+      <div class="eyebrow">Priority System</div>
+      <h2 class="section-h">Triage With Precision</h2>
+      <p class="section-sub">Every bug gets a severity tag so your team always knows what to tackle first.</p>
+    </div>
+    <div class="prio-list reveal">
+      <div class="prio-row">
+        <div class="prio-left">
+          <span class="prio-badge pb-crit">P0 · Critical</span>
+          <span class="prio-emoji">🔴</span>
+        </div>
+        <div>
+          <div class="prio-title">System-Breaking Issue</div>
+          <p class="prio-desc">Core functionality is blocked. Production is affected. Requires immediate developer attention with zero tolerance for delay.</p>
+        </div>
+        <div class="prio-sla">SLA: Same Day</div>
+      </div>
+      <div class="prio-row">
+        <div class="prio-left">
+          <span class="prio-badge pb-high">P1 · High</span>
+          <span class="prio-emoji">🟠</span>
+        </div>
+        <div>
+          <div class="prio-title">Major Functionality Degraded</div>
+          <p class="prio-desc">Users experience significant friction. Important features are impacted. Must be resolved within the current sprint.</p>
+        </div>
+        <div class="prio-sla">SLA: 3 Days</div>
+      </div>
+      <div class="prio-row">
+        <div class="prio-left">
+          <span class="prio-badge pb-med">P2 · Medium</span>
+          <span class="prio-emoji">🔵</span>
+        </div>
+        <div>
+          <div class="prio-title">Non-Critical with Workaround</div>
+          <p class="prio-desc">Issue exists but users can work around it. Scheduled for the next sprint without urgent pressure on the team.</p>
+        </div>
+        <div class="prio-sla">SLA: Next Sprint</div>
+      </div>
+      <div class="prio-row">
+        <div class="prio-left">
+          <span class="prio-badge pb-low">P3 · Low</span>
+          <span class="prio-emoji">🟢</span>
+        </div>
+        <div>
+          <div class="prio-title">Minor / Cosmetic</div>
+          <p class="prio-desc">Minimal user impact. UI polish, copy fixes, or edge-case behavior. Addressed as bandwidth allows in future iterations.</p>
+        </div>
+        <div class="prio-sla">SLA: Backlog</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ROLES ══════════ -->
+<section id="roles" class="section">
+  <div class="wrap">
+    <div class="text-center reveal" style="margin-bottom:56px">
+      <div class="eyebrow">Team Roles</div>
+      <h2 class="section-h">Right Access. Right People.</h2>
+      <p class="section-sub">Four carefully scoped roles ensure every team member has exactly the permissions they need — no more, no less.</p>
+    </div>
+    <div class="roles-grid reveal">
+      <div class="role-card">
+        <div class="role-avatar ra-admin">👑</div>
+        <div class="role-name">Admin</div>
+        <span class="role-tier rt-admin">Super User</span>
+        <ul class="role-perms">
+          <li>Full system access</li>
+          <li>Manage all users & roles</li>
+          <li>Create & delete projects</li>
+          <li>View all system reports</li>
+          <li>Configure platform settings</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-avatar ra-manager">📋</div>
+        <div class="role-name">Manager</div>
+        <span class="role-tier rt-manager">Project Lead</span>
+        <ul class="role-perms">
+          <li>Create & manage projects</li>
+          <li>Assign bugs to developers</li>
+          <li>View project dashboards</li>
+          <li>Monitor team progress</li>
+          <li>Close verified bugs</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-avatar ra-dev">💻</div>
+        <div class="role-name">Developer</div>
+        <span class="role-tier rt-dev">Engineer</span>
+        <ul class="role-perms">
+          <li>View assigned bugs</li>
+          <li>Update bug status</li>
+          <li>Add resolution notes</li>
+          <li>Mark bugs as resolved</li>
+          <li>Access own project bugs</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-avatar ra-tester">🧪</div>
+        <div class="role-name">Tester</div>
+        <span class="role-tier rt-tester">QA Engineer</span>
+        <ul class="role-perms">
+          <li>Report new bugs</li>
+          <li>Verify resolved bugs</li>
+          <li>Add QA test notes</li>
+          <li>Reopen failed fixes</li>
+          <li>View test assignments</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ TECH STACK ══════════ -->
+<section id="stack" class="section" style="background:var(--bg-card);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <div class="text-center reveal" style="margin-bottom:56px">
+      <div class="eyebrow">Tech Stack</div>
+      <h2 class="section-h">Built on Solid Foundations</h2>
+      <p class="section-sub">Proven, modern technologies powering every layer of Pybug Trackz — from backend ORM to frontend rendering.</p>
+    </div>
+  </div>
+  <div class="tech-marquee-wrap reveal">
+    <div class="tech-marquee">
+      <!-- set 1 -->
+      <div class="tech-pill"><div class="tech-pill-icon">🐍</div>Python 3</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🎸</div>Django Framework</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🗄️</div>Django ORM</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🔐</div>Django Auth</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🛡️</div>CSRF Protection</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🗃️</div>SQLite / MySQL</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🎨</div>HTML5 & CSS3</div>
+      <div class="tech-pill"><div class="tech-pill-icon">⚡</div>Vanilla JavaScript</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🖥️</div>Django Templates</div>
+      <div class="tech-pill"><div class="tech-pill-icon">📦</div>Django Migrations</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🌐</div>Responsive Design</div>
+      <div class="tech-pill"><div class="tech-pill-icon">📡</div>RESTful Routing</div>
+      <!-- set 2 (duplicate for seamless loop) -->
+      <div class="tech-pill"><div class="tech-pill-icon">🐍</div>Python 3</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🎸</div>Django Framework</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🗄️</div>Django ORM</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🔐</div>Django Auth</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🛡️</div>CSRF Protection</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🗃️</div>SQLite / MySQL</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🎨</div>HTML5 & CSS3</div>
+      <div class="tech-pill"><div class="tech-pill-icon">⚡</div>Vanilla JavaScript</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🖥️</div>Django Templates</div>
+      <div class="tech-pill"><div class="tech-pill-icon">📦</div>Django Migrations</div>
+      <div class="tech-pill"><div class="tech-pill-icon">🌐</div>Responsive Design</div>
+      <div class="tech-pill"><div class="tech-pill-icon">📡</div>RESTful Routing</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CTA ══════════ -->
+<section class="section">
+  <div class="wrap reveal">
+    <div class="cta-banner">
+      <h2>Ready to Kill Bug Chaos?</h2>
+      <p>Join your team on Pybug Trackz and transform messy reports into structured, tracked, and closed tickets — at scale.</p>
+      <a href="{% url 'login' %}" class="btn-hero btn-hero-fill">
+        Start Tracking Now <span>→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CONTACT ══════════ -->
+<section id="contact" class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="text-center reveal" style="margin-bottom:48px">
+      <div class="eyebrow">Contact</div>
+      <h2 class="section-h">Get in Touch</h2>
+    </div>
+    <div class="contact-grid reveal">
+      <div class="contact-card">
+        <div class="contact-ico">✉️</div>
+        <div>
+          <div class="contact-type">Email</div>
+          <div class="contact-val">boobala7636@gmail.com</div>
+        </div>
+      </div>
+      <div class="contact-card">
+        <div class="contact-ico">📞</div>
+        <div>
+          <div class="contact-type">Phone</div>
+          <div class="contact-val">+91 9976368353</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /page -->
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-copy">© 2026 <strong>Pybug Trackz</strong> · Developed by <strong>Boobalan</strong></div>
+    <nav class="footer-nav">
+      <a href="#about">About</a>
+      <a href="#features">Features</a>
+      <a href="#workflow">Lifecycle</a>
+      <a href="#roles">Roles</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- ══════════ SCRIPTS ══════════ -->
+<script>
+/* ─ Theme ─ */
+const html=document.documentElement;
+const btn=document.getElementById('themeToggle');
+const saved=localStorage.getItem('pybug-theme')||'dark';
+html.setAttribute('data-theme',saved);
+btn.textContent=saved==='dark'?'☀️':'🌙';
+btn.addEventListener('click',()=>{
+  const t=html.getAttribute('data-theme')==='dark'?'light':'dark';
+  html.setAttribute('data-theme',t);
+  localStorage.setItem('pybug-theme',t);
+  btn.textContent=t==='dark'?'☀️':'🌙';
+});
+
+/* ─ Custom cursor ─ */
+const cur=document.getElementById('cursor');
+const ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+});
+function animRing(){
+  rx+=(mx-rx)*.14;ry+=(my-ry)*.14;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+document.querySelectorAll('a,button,[class*="card"],[class*="tile"],[class*="chip"],[class*="pill"]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.classList.add('hovered');ring.classList.add('hovered')});
+  el.addEventListener('mouseleave',()=>{cur.classList.remove('hovered');ring.classList.remove('hovered')});
+});
+
+/* ─ Canvas animated bg ─ */
+const canvas=document.getElementById('bg-canvas');
+const ctx=canvas.getContext('2d');
+let W,H;
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+
+const particles=Array.from({length:55},()=>({
+  x:Math.random()*W,y:Math.random()*H,
+  r:Math.random()*1.8+.4,
+  vx:(Math.random()-.5)*.18,
+  vy:(Math.random()-.5)*.18,
+  o:Math.random()*.35+.06,
+}));
+
+function drawBg(){
+  ctx.clearRect(0,0,W,H);
+  const isDark=html.getAttribute('data-theme')==='dark';
+  particles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+    if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=isDark?`rgba(99,149,255,${p.o})`:`rgba(37,99,235,${p.o*.5})`;
+    ctx.fill();
+  });
+  // connections
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x;
+      const dy=particles[i].y-particles[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<130){
+        const alpha=isDark?(1-dist/130)*.07:(1-dist/130)*.04;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.strokeStyle=`rgba(59,130,246,${alpha})`;
+        ctx.lineWidth=.8;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+/* ─ Scroll reveal ─ */
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}});
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>

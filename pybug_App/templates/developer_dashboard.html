@@ -1,0 +1,372 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Dashboard | BTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* --- Shared Colors --- */
+            --primary: #a855f7;    
+            --accent-glow: #ec4899; 
+            --g-red: #ff4b4b;
+            --g-green: #22c55e;
+            --g-yellow: #facc15;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            
+            /* --- Dark Theme Variables (Default) --- */
+            --bg-body: #08020d;     
+            --card-bg: rgba(18, 3, 26, 0.95);
+            --text-main: #f3e8ff;
+            --text-dim: #a78bfa;
+            --border-glow: rgba(168, 85, 247, 0.2);
+            --row-hover: rgba(168, 85, 247, 0.06);
+            --radial-1: rgba(168, 85, 247, 0.2);
+            --radial-2: rgba(236, 72, 153, 0.15);
+        }
+
+        /* --- Light Theme Variables --- */
+        [data-theme="light"] {
+            --bg-body: #f8f7ff;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #2d1b4d;
+            --text-dim: #6b46c1;
+            --border-glow: rgba(168, 85, 247, 0.1);
+            --row-hover: rgba(168, 85, 247, 0.04);
+            --radial-1: rgba(168, 85, 247, 0.1);
+            --radial-2: rgba(236, 72, 153, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-body);
+            background-image: 
+                radial-gradient(at 15% 15%, var(--radial-1) 0px, transparent 40%),
+                radial-gradient(at 85% 85%, var(--radial-2) 0px, transparent 40%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 40px 60px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        /* --- Fixed Theme Toggle --- */
+        .theme-toggle {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            padding: 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            color: var(--primary) !important; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            background: var(--primary);
+            color: #fff !important;
+            border-color: transparent;
+        }
+
+        .theme-toggle svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* --- Header Section --- */
+        .header-section {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding-left: 5px;
+        }
+
+        .dashboard-link {
+            font-size: 13px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 12px;
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid var(--border-glow);
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-link:hover {
+            color: #fff;
+            background: var(--primary);
+            border-color: transparent;
+            transform: translateX(-5px);
+            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3);
+        }
+
+        h2 {
+    font-family: 'Product Sans', sans-serif;
+    font-size: 38px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, var(--text-main) 30%, var(--primary));
+    
+    /* Clipping Logic */
+    -webkit-background-clip: text;
+    background-clip: text; /* Standard property for Firefox/Future-proofing */
+    
+    /* Transparency Logic */
+    -webkit-text-fill-color: transparent;
+    color: transparent; /* Standard fallback */
+
+    margin: 0;
+    filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.1));
+}
+
+        /* --- Table Glow Wrapper --- */
+        .glow-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            padding: 2px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.5);
+        }
+
+        .glow-wrapper::before {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                var(--primary) 90deg,
+                var(--accent-glow) 180deg,
+                #fff 270deg,
+                transparent 360deg
+            );
+            animation: rotate 4s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .inner-container {
+            position: relative;
+            background: var(--card-bg);
+            border-radius: 22px;
+            z-index: 1;
+            overflow: hidden;
+            backdrop-filter: blur(30px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: transparent;
+        }
+
+        th {
+            background: rgba(168, 85, 247, 0.04);
+            padding: 22px 20px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            letter-spacing: 2.5px;
+            border-bottom: 1px solid var(--border-glow);
+        }
+
+        td {
+            padding: 22px 20px;
+            border-bottom: 1px solid var(--border-glow);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        tr.bug-row:hover td {
+            background: var(--row-hover);
+        }
+
+        .view-btn {
+            text-decoration: none;
+            padding: 10px 22px;
+            background: rgba(168, 85, 247, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .view-btn:hover {
+            background: var(--primary);
+            color: #fff !important;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.4);
+        }
+
+        .priority-high { 
+            color: var(--g-red); 
+            font-weight: 700;
+            text-shadow: 0 0 12px rgba(255, 75, 75, 0.2);
+        }
+
+        @media (max-width: 760px) {
+            body { padding: 20px 14px 32px; }
+            .theme-toggle { top: 16px; right: 14px; }
+            .header-section { padding: 0; padding-right: 54px; }
+            h2 { font-size: 28px; }
+            .glow-wrapper { overflow-x: auto; }
+            .inner-container { min-width: 720px; }
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+
+<body>
+
+    <button class="theme-toggle" id="theme-toggle" title="Toggle Light/Dark Mode">
+        <svg id="theme-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+    </button>
+
+    <div class="header-section">
+        <a href="{% url 'dashboard' %}" class="dashboard-link">
+            ← Back to Dashboard
+        </a>
+        <h2>Developer Dashboard</h2>
+    </div>
+
+    <div class="glow-wrapper">
+        <div class="inner-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Bug Title</th>
+                        <th>Project</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bug in bugs %}
+                    <tr class="bug-row">
+                        <td style="color: var(--text-dim);">#{{ bug.id }}</td>
+                        <td style="font-weight: 600; color: var(--text-main);">{{ bug.title }}</td>
+                        <td>{{ bug.project.project_name }}</td>
+                        <td class="{% if bug.priority == 'High' %}priority-high{% endif %}">{{ bug.priority }}</td>
+                        <td>
+                            <span style="color: var(--g-yellow); font-weight: 500;">{{ bug.status }}</span>
+                        </td>
+                        <td>
+                            <a href="{% url 'developer_bug_details' bug.id %}" class="view-btn">View Details</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="padding: 120px; color: var(--text-dim); font-style: italic; text-align: center; font-size: 16px;">
+                            No bugs assigned to you yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const icon = document.getElementById('theme-icon');
+
+        const sunIcon = `
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`;
+
+        const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+
+        // Persistent Theme Logic
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', currentTheme);
+        icon.innerHTML = currentTheme === 'dark' ? sunIcon : moonIcon;
+
+        toggleBtn.addEventListener('click', () => {
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            icon.innerHTML = newTheme === 'dark' ? sunIcon : moonIcon;
+        });
+
+        // Animation for Rows
+        document.addEventListener('DOMContentLoaded', () => {
+            const rows = document.querySelectorAll('.bug-row');
+            rows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(15px)';
+                setTimeout(() => {
+                    row.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, index * 80);
+            });
+        });
+    </script>
+</body>
+</html>

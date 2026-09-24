@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug History | BTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4285F4;
+            --g-red: #EA4335;
+            --g-green: #34A853;
+            --g-yellow: #FBBC05;
+            --sidebar-width: 280px;
+            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+
+            /* Dark Theme */
+            --bg-body: #000;
+            --sidebar-bg: rgba(10, 10, 10, 0.4);
+            --card-bg: rgba(15, 15, 15, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --text-main: #f5f5f7;
+            --text-dim: #86868b;
+            --mesh-1: rgba(66, 133, 244, 0.1);
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f5f5f7;
+            --sidebar-bg: rgba(255, 255, 255, 0.6);
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --text-main: #1d1d1f;
+            --text-dim: #6e6e73;
+            --mesh-1: rgba(66, 133, 244, 0.05);
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; display: flex; 
+            background: var(--bg-body);
+            background-image: radial-gradient(at 0% 0%, var(--mesh-1) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: var(--sidebar-width); 
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(40px); 
+            position: fixed; height: 100%;
+            padding: 50px 0; display: flex; flex-direction: column;
+            border-right: 1px solid var(--glass-border); 
+            z-index: 100;
+        }
+
+        .sidebar h2 { 
+    font-family: 'Product Sans', sans-serif; 
+    padding: 0 35px; 
+    font-size: 26px; 
+    font-weight: 700;
+    letter-spacing: -1px; 
+    margin-bottom: 60px; 
+    
+    /* 1. The Gradient Orientation */
+    background: linear-gradient(135deg, var(--text-main) 0%, var(--text-dim) 100%);
+    
+    /* 2. The Clipping (Both Webkit and Standard) */
+    -webkit-background-clip: text; 
+    background-clip: text; 
+    
+    /* 3. The Transparency Control */
+    -webkit-text-fill-color: transparent;
+    color: transparent; /* Fallback for standard compliance */
+    
+    /* 4. Smooth Transition for Theme Toggles */
+    transition: var(--transition);
+}
+
+        .sidebar a {
+            padding: 18px 35px; color: var(--text-dim); text-decoration: none;
+            display: flex; align-items: center; gap: 15px;
+            font-size: 14px; font-weight: 500; transition: var(--transition);
+        }
+
+        .sidebar a:hover { color: var(--text-main); background: rgba(128, 128, 128, 0.05); }
+        .sidebar a.active { color: var(--primary); background: rgba(66, 133, 244, 0.08); border-left: 3px solid var(--primary); }
+
+        /* --- Content Layout --- */
+        .content { 
+            margin-left: var(--sidebar-width); 
+            padding: 80px; 
+            width: calc(100% - var(--sidebar-width)); 
+        }
+
+        .header-title {
+    font-family: 'Product Sans', sans-serif;
+    font-size: 42px; 
+    font-weight: 700; 
+    letter-spacing: -1.5px;
+    
+    /* 1. The Gradient */
+    background: linear-gradient(to bottom, var(--text-main) 40%, var(--text-dim) 100%);
+    
+    /* 2. The Clipping (Crucial for visibility) */
+    -webkit-background-clip: text; 
+    background-clip: text; 
+    
+    /* 3. The Transparency */
+    -webkit-text-fill-color: transparent;
+    color: transparent; /* Fallback for standard compliance */
+    
+    margin: 0;
+}
+
+        /* --- Card & Table --- */
+        .section-card {
+            background: var(--card-bg); border-radius: 28px; border: 1px solid var(--glass-border);
+            position: relative; margin-top: 40px; backdrop-filter: blur(10px);
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Rainbow Border Glow */
+        .section-card::before {
+    content: "";
+    position: absolute;
+    inset: -1.5px;
+    border-radius: 29px;
+    padding: 1.5px;
+    background: linear-gradient(135deg, var(--primary), var(--g-red), var(--g-yellow), var(--g-green));
+    
+    /* The Correct Masking Logic */
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: -1;
+}
+
+        .section-card:hover::before { opacity: 1; filter: drop-shadow(0 0 8px rgba(66, 133, 244, 0.4)); }
+
+        .card-header { padding: 30px 40px; border-bottom: 1px solid var(--glass-border); }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 20px 40px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px; font-weight: 700; }
+        td { padding: 25px 35px; border-bottom: 1px solid var(--glass-border); font-size: 14px; color: var(--text-main); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(128, 128, 128, 0.03); transition: 0.3s ease; }
+
+        .pill { 
+            background: rgba(128, 128, 128, 0.1); padding: 5px 12px; border-radius: 30px; 
+            font-size: 12px; border: 1px solid var(--glass-border); color: var(--text-main);
+        }
+        
+        #themeToggle {
+            cursor:pointer; background: var(--card-bg); padding: 12px; border-radius: 50%;
+            border: 1px solid var(--glass-border); width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center; transition: var(--transition);
+        }
+        @media (max-width: 760px) {
+            body { display: block; }
+            .sidebar { position: static; width: 100%; height: auto; padding: 10px; flex-direction: row; overflow-x: auto; white-space: nowrap; }
+            .sidebar h2 { margin: 0; padding: 0 12px; }
+            .sidebar a { flex: 0 0 auto; padding: 10px 12px; font-size: 12px; }
+            .content { margin-left: 0; width: 100%; padding: 24px 14px; }
+            .table-container { overflow-x: auto; }
+            table { min-width: 620px; }
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+    <nav class="sidebar">
+        <h2>BTS</h2>
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'manager_bug_list' %}" class="active">Bug History</a>
+        <a href="{% url 'logout' %}" style="margin-top: auto; color: var(--g-red); opacity: 0.7;">🚪 Logout</a>
+    </nav>
+
+    <div class="content">
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 class="header-title">Bug History</h1>
+            <div id="themeToggle">🌙</div>
+        </header>
+
+        <div class="section-card">
+            <div class="card-header">
+                <h2 style="font-family: 'Product Sans'; font-size: 22px; margin: 0; color: var(--text-main); letter-spacing: -0.5px;">Activity Log</h2>
+            </div>
+            <table class="responsive-data-table">
+                <thead>
+                    <tr>
+                        <th>Bug</th>
+                        <th>Status</th>
+                        <th>Changed By</th>
+                        <th>Comment</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for history in histories %}
+                    <tr>
+                        <td data-label="Bug" style="font-weight: 600;">{{ history.bug }}</td>
+                        <td data-label="Status">
+                            <span style="color: var(--primary); font-weight: 600;">{{ history.status }}</span>
+                        </td>
+                        <td data-label="Changed By"><span class="pill">{{ history.changed_by }}</span></td>
+                        <td data-label="Comment" style="color: var(--text-dim);">{{ history.comment }}</td>
+                        <td data-label="Date" style="font-size: 12px; color: var(--text-dim);">{{ history.created_at }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding: 100px; color: var(--text-dim); font-style: italic;">
+                            No history found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('bts-theme') || 'dark';
+        htmlElement.setAttribute('data-theme', savedTheme);
+        themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('bts-theme', newTheme);
+            themeToggle.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        });
+    </script>
+    <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

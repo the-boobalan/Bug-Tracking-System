@@ -1,0 +1,374 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Manager Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-body: #050505;
+            --bg-card: #0d1117;
+            --sidebar: #010409;
+            --primary: #4285F4;
+            --text-main: #FFFFFF;
+            --text-sub: #8b949e;
+            --border: #30363d;
+            --danger: #f85149;
+            --radius: 12px;
+            
+            /* Google Logo Colors */
+            --google-gradient: linear-gradient(135deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4);
+        }
+
+        [data-theme="deep-sea"] {
+            --bg-body: #011627;
+            --bg-card: #0b253a;
+            --sidebar: #010c15;
+            --border: #1e3a5a;
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f6f8fa;
+            --bg-card: #ffffff;
+            --sidebar: #172b4d;
+            --text-main: #172b4d;
+            --border: #dcdfe4;
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            background: var(--bg-body); 
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar);
+            padding: 40px 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100%;
+            z-index: 100;
+            border-right: 1px solid var(--border);
+        }
+
+        .sidebar h2 { 
+            padding: 0 30px; 
+            font-size: 18px; 
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 40px;
+            color: var(--primary);
+        }
+
+        .sidebar a {
+            padding: 14px 30px;
+            color: var(--text-sub);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            gap: 12px;
+        }
+
+        .sidebar a:hover { 
+            background: rgba(255,255,255,0.03); 
+            color: var(--text-main);
+            padding-left: 35px;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 260px;
+            padding: 60px;
+            width: calc(100% - 260px);
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .header-flex h1 { font-size: 32px; font-weight: 800; margin: 0; letter-spacing: -1px; }
+
+        /* --- Theme Pill --- */
+        .theme-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 6px;
+            border-radius: 50px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .dot.active { border-color: white; transform: scale(1.1); }
+
+        /* --- Animated Gradient Border Wrapper --- */
+        .gradient-wrapper {
+            position: relative;
+            background: var(--border);
+            border-radius: var(--radius);
+            padding: 1.5px; /* Border thickness */
+            margin-bottom: 25px;
+        }
+
+        .gradient-wrapper:hover {
+            background: var(--google-gradient);
+            background-size: 300% 300%;
+            animation: moveGradient 3s infinite linear;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Cards & Content --- */
+        .summary-bar { display: flex; gap: 20px; margin-bottom: 30px; }
+        
+        .stat-card {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: calc(var(--radius) - 1px);
+            flex: 1;
+        }
+
+        .stat-card small { color: var(--text-sub); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card div { font-size: 24px; font-weight: 700; margin-top: 8px; }
+
+        .table-container {
+            background: var(--bg-card);
+            border-radius: calc(var(--radius) - 1px);
+            overflow: hidden;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { 
+            background: rgba(255,255,255,0.02);
+            text-align: left; padding: 18px 25px; 
+            font-size: 11px; text-transform: uppercase; 
+            letter-spacing: 1.5px; font-weight: 700; color: var(--text-sub);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td { padding: 20px 25px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-main); }
+        tr:hover { background: rgba(255,255,255,0.02); }
+
+        /* --- Controls --- */
+        .search-bar {
+            width: 350px;
+            padding: 14px 20px;
+            border-radius: var(--radius);
+            border: 1.5px solid var(--border);
+            background: var(--bg-card);
+            color: white;
+            outline: none;
+        }
+
+        .search-bar:focus {
+            border-color: transparent;
+            background-image: linear-gradient(var(--bg-card), var(--bg-card)), var(--google-gradient);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        @media (max-width: 760px) {
+            body { display: block; }
+            .sidebar {
+                position: static; width: 100%; height: auto; padding: 12px;
+                flex-direction: row; align-items: center; gap: 4px;
+                overflow-x: auto; white-space: nowrap;
+            }
+            .sidebar h2 { padding: 0 12px; margin: 0; font-size: 15px; }
+            .sidebar a { padding: 10px 12px; font-size: 12px; flex: 0 0 auto; }
+            .main-content { margin-left: 0; width: 100%; padding: 28px 14px; }
+            .header-flex { flex-wrap: wrap; gap: 16px; }
+            .header-flex h1 { font-size: 26px; }
+            .summary-bar { flex-direction: column; gap: 10px; }
+            .table-container { overflow-x: auto; }
+            .table-container table { min-width: 680px; }
+            .search-bar { width: 100%; max-width: none; }
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            display: inline-flex; align-items: center; gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-edit { background: var(--primary); color: white; }
+        .btn-delete { background: transparent; border: 1px solid var(--border); color: var(--danger); }
+        .btn-delete:hover { background: var(--danger); color: white; }
+
+        /* --- Modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-card {
+            background: var(--bg-card);
+            padding: 40px; border-radius: 20px;
+            width: 450px; text-align: center; border: 1px solid var(--border);
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+<aside class="sidebar">
+    <h2>Manager</h2>
+    <a href="{% url 'dashboard' %}"> Home Dashboard</a>
+    <a href="{% url 'create_project' %}"> Create Project</a>
+    <a href="{% url 'logout' %}" style="margin-top: auto; color: var(--danger);"> Logout</a>
+</aside>
+
+<main class="main-content">
+    <div class="header-flex">
+        <h1>Project Details</h1>
+        <div class="theme-pill">
+            <div class="dot active" style="background: #0d1117;" onclick="changeTheme('dark', this)"></div>
+            <div class="dot" style="background: #011627;" onclick="changeTheme('deep-sea', this)"></div>
+            <div class="dot" style="background: #ffffff; border: 1px solid #ddd;" onclick="changeTheme('light', this)"></div>
+        </div>
+    </div>
+
+    <div class="summary-bar">
+        <div class="gradient-wrapper" style="flex:1">
+            <div class="stat-card">
+                <small>Active Tracks</small>
+                <div>{{ projects|length }} Units</div>
+            </div>
+        </div>
+        <div class="gradient-wrapper" style="flex:1">
+            <div class="stat-card">
+                <small>System Status</small>
+                <div style="color: #34A853;">● Operational</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+        <input type="text" id="projectSearch" class="search-bar" placeholder="🔍 Global Search...">
+        <a href="{% url 'create_project' %}" class="btn btn-edit">Initialize Project</a>
+    </div>
+
+    <div class="gradient-wrapper">
+        <div class="table-container">
+            <table id="projectTable">
+                <thead>
+                    <tr>
+                        <th>Ref.</th>
+                        <th>Project Identity</th>
+                        <th>Lead Manager</th>
+                        <th>Timeline</th>
+                        <th>Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if projects %}
+                        {% for project in projects %}
+                        <tr class="project-row">
+                            <td style="color: var(--primary); font-weight: 800;">#{{ forloop.counter }}</td>
+                            <td>
+                                <div style="font-weight: 700; margin-bottom: 4px;">{{ project.project_name }}</div>
+                                <div style="font-size: 12px; color: var(--text-sub);">{{ project.description }}</div>
+                            </td>
+                            <td>{{ project.manager }}</td>
+                            <td><code style="color: var(--primary);">{{ project.deadline }}</code></td>
+                            <td>
+                                <div style="display: flex; gap: 10px;">
+                                    <a href="{% url 'update_project' project.id %}" class="btn" style="background: rgba(255,255,255,0.05); color: var(--text-main);">Edit</a>
+                                    <button class="btn btn-delete" onclick="confirmDelete('{{ project.id }}', '{{ project.project_name }}')">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding: 60px; color: var(--text-sub);">Database empty. No records found.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-card">
+        <h3 style="margin-top: 0; font-size: 24px;">Confirm Termination</h3>
+        <p style="color: var(--text-sub); font-size: 14px; line-height: 1.6;">Are you sure you want to delete <strong id="projName" style="color: white;"></strong>? This action cannot be reversed.</p>
+        <div style="display: flex; gap: 12px; margin-top: 35px;">
+            <button class="btn" style="flex: 1; background: rgba(255,255,255,0.05); color: white;" onclick="closeModal()">Aborted</button>
+            <form id="deleteConfirmForm" method="post" style="flex: 1;">
+                {% csrf_token %}
+                <button id="deleteConfirmBtn" type="submit" class="btn btn-edit" style="width: 100%; background: var(--danger); justify-content: center;">Delete Forever</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function changeTheme(theme, el) {
+        document.documentElement.setAttribute('data-theme', theme);
+        document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+        el.classList.add('active');
+        localStorage.setItem('manager-style', theme);
+    }
+
+    const saved = localStorage.getItem('manager-style') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+
+    document.getElementById('projectSearch').addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase();
+        document.querySelectorAll('.project-row').forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(val) ? '' : 'none';
+        });
+    });
+
+    function confirmDelete(id, name) {
+        const modal = document.getElementById('deleteModal');
+        const form = document.getElementById('deleteConfirmForm');
+        document.getElementById('projName').textContent = name;
+        form.action = "{% url 'delete_project' 0 %}".replace('0', id);
+        modal.classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+</script>
+<script src="{% static 'js/app.js' %}"></script>
+
+</body>
+</html>

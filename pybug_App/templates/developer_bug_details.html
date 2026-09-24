@@ -1,0 +1,425 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev - Bug Details | BTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Shared Colors */
+            --primary: #a855f7;    
+            --accent-glow: #ec4899; 
+            --g-red: #ff4b4b;
+            --g-green: #22c55e;
+            --g-yellow: #facc15;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+            /* Dark Theme Variables (Default) */
+            --bg-body: #08020d;     
+            --card-bg: rgba(18, 3, 26, 0.95);
+            --text-main: #f3e8ff;
+            --text-dim: #a78bfa;
+            --border-glow: rgba(168, 85, 247, 0.2);
+            --radial-1: rgba(168, 85, 247, 0.2);
+            --radial-2: rgba(236, 72, 153, 0.15);
+        }
+
+        /* Light Theme Variables */
+        [data-theme="light"] {
+            --bg-body: #f8f7ff;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #2d1b4d;
+            --text-dim: #6b46c1;
+            --border-glow: rgba(168, 85, 247, 0.1);
+            --radial-1: rgba(168, 85, 247, 0.1);
+            --radial-2: rgba(236, 72, 153, 0.08);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background: var(--bg-body);
+            background-image: 
+                radial-gradient(at 15% 15%, var(--radial-1) 0px, transparent 40%),
+                radial-gradient(at 85% 85%, var(--radial-2) 0px, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        /* --- Theme Toggle Button --- */
+        .theme-toggle {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            padding: 12px;
+            border-radius: 14px;
+            cursor: pointer;
+            color: var(--primary) !important; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            background: var(--primary);
+            color: #fff !important;
+            border-color: transparent;
+        }
+
+        .theme-toggle svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        h2 {
+    /* Fallback for very old browsers */
+    color: var(--primary); 
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+    h2 {
+        background: linear-gradient(135deg, var(--text-main) 30%, var(--primary));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+}
+
+        /* --- Animated Glow Container --- */
+        .glow-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1150px;
+            padding: 2px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .glow-wrapper::before {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                var(--primary) 90deg,
+                var(--accent-glow) 180deg,
+                #fff 270deg,
+                transparent 360deg
+            );
+            animation: rotate-glow 4s linear infinite;
+            z-index: 0;
+        }
+
+        .inner-container {
+            position: relative;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 22px;
+            z-index: 1;
+            overflow: hidden;
+            backdrop-filter: blur(30px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        @keyframes rotate-glow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- Table Styling --- */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: transparent;
+        }
+
+        th { 
+            padding: 22px 25px; 
+            text-align: left; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            color: var(--text-dim); 
+            letter-spacing: 2px; 
+            font-weight: 700;
+            background: rgba(168, 85, 247, 0.04);
+            border-bottom: 1px solid var(--border-glow);
+        }
+
+        td { 
+            padding: 22px 25px; 
+            border-bottom: 1px solid var(--border-glow); 
+            font-size: 14px; 
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        /* --- Custom Elements --- */
+        .pill { 
+            background: rgba(168, 85, 247, 0.15); 
+            padding: 6px 14px; 
+            border-radius: 30px; 
+            font-size: 12px; 
+            color: var(--text-main);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            font-weight: 600;
+        }
+
+        .project-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .project-link:hover {
+            color: var(--text-main);
+            text-shadow: 0 0 10px var(--primary);
+            text-decoration: underline;
+        }
+
+        /* --- Action Buttons --- */
+        .btn-start {
+            background: linear-gradient(135deg, var(--g-green), #10b981);
+            color: #000 !important;
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.6);
+            filter: brightness(1.1);
+        }
+
+        .btn-resolve {
+            color: var(--text-main) !important;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid var(--border-glow);
+            font-size: 13px;
+            transition: var(--transition);
+        }
+
+        .btn-resolve:hover {
+            background: var(--primary);
+            color: #fff !important;
+        }
+
+        .divider {
+            color: rgba(255, 255, 255, 0.1);
+            margin: 0 10px;
+            font-weight: 300;
+        }
+
+        .status-badge {
+            color: var(--g-yellow);
+            font-weight: 600;
+        }
+
+        .priority-label {
+            font-weight: 700;
+            color: var(--g-red);
+            text-shadow: 0 0 8px rgba(255, 75, 75, 0.2);
+        }
+
+        /* Dashboard Link Styled */
+        .dashboard-btn {
+            font-size: 13px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 12px;
+            background: rgba(168, 85, 247, 0.08);
+            border: 1px solid var(--border-glow);
+            backdrop-filter: blur(10px);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+
+        .dashboard-btn:hover {
+            color: #fff;
+            background: var(--primary);
+            transform: translateX(-5px);
+            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3);
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+    <button class="theme-toggle" id="theme-toggle" title="Toggle Light/Dark Mode">
+        <svg id="theme-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+    </button>
+
+    <h2>Developer Bug Details</h2>
+
+    <div class="glow-wrapper">
+        <div class="inner-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Developer</th>
+                        <th>Bug Title</th>
+                        <th>Project</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Assign Date</th>
+                        <th>Live Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color: var(--text-dim);">#{{ bug.id }}</td>
+                        <td><span class="pill">{{ bug.assigned_to.username }}</span></td>
+                        <td style="font-weight: 600; color: var(--text-main);">{{ bug.title }}</td>
+                        <td>
+                            <a href="{{ bug.project_url }}" target="_blank" class="project-link">
+                                {{ bug.project.project_name }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="status-badge">{{ bug.status }}</span>
+                        </td>
+                        <td>
+                            <span class="priority-label">{{ bug.priority }}</span>
+                        </td>
+                        <td style="color: var(--text-dim); font-size: 13px;">{{ bug.created_at }}</td>
+                        <td style="white-space: nowrap;">
+                            {% if bug.status ==  "Assigned" %}
+                                <form method="post" action="{% url 'start_bug' bug.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-start">Start Work</button>
+                                </form>
+                            {% elif bug.status == "In Progress" %}
+                                 <span style="color: var(--g-green); font-weight: 600; font-size: 13px;">
+                                    In Progress
+                                </span>
+                            {% elif bug.status == "Verified" %}
+                                 <span style="color: var(--g-green); font-weight: 600; font-size: 13px;">
+                                    Waiting
+                                </span>
+                            {% else %} 
+                                <span style="color: var(--g-green); font-weight: 600; font-size: 13px;">
+                                    ✓ Completed
+                                </span>
+                            {% endif %} 
+
+                            <span class="divider">/</span>
+
+                            {% if bug.status == "In Progress" %}
+                                <form method="post" action="{% url 'resolve_bug' bug.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-resolve">Resolve</button>
+                                </form>
+                            
+                            {% elif bug.status == "Verified" %}
+                                 <span style="color: var(--g-green); font-weight: 600; font-size: 13px;">
+                                    Waiting
+                                </span>
+
+                            {% else %}
+                                <span style="color: var(--g-green); font-weight: 600; font-size: 13px;">
+                                    ✓ Completed
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <a href="{% url 'developer_dashboard' %}" class="dashboard-btn">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const icon = document.getElementById('theme-icon');
+
+        const sunIcon = `
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`;
+
+        const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+
+        // Persistent Theme Logic
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', currentTheme);
+        icon.innerHTML = currentTheme === 'dark' ? sunIcon : moonIcon;
+
+        toggleBtn.addEventListener('click', () => {
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            icon.innerHTML = newTheme === 'dark' ? sunIcon : moonIcon;
+        });
+    </script>
+
+</body>
+</html>

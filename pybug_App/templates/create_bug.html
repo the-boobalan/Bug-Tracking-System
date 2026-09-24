@@ -1,0 +1,250 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Bug </title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* DARK MODE (Default) */
+            --bg-dark: #0a0a0b;
+            --card-dark: #161618;
+            --text-main: #e8eaed;
+            --text-gray: #9AA0A6;
+            --border-color: #2d2d30;
+            --input-bg: #0f0f11;
+            /* Google Colors */
+            --google-blue: #4285F4;
+            --google-red: #EA4335;
+            --google-yellow: #FBBC05;
+            --google-green: #34A853;
+            --neon-glow: rgba(66, 133, 244, 0.4);
+        }
+
+        /* LIGHT MODE TOGGLE */
+        [data-theme="light"] {
+            --bg-dark: #f8f9fa;
+            --card-dark: #ffffff;
+            --text-main: #202124;
+            --text-gray: #5f6368;
+            --border-color: #dadce0;
+            --input-bg: #f1f3f4;
+            --neon-glow: rgba(66, 133, 244, 0.1);
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body { 
+            font-family: 'Google Sans', sans-serif; 
+            margin: 0; 
+            background: var(--bg-dark); 
+            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 40px 20px;
+            background-image: radial-gradient(rgba(128,128,128,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* --- Theme Switcher Button --- */
+        .theme-btn {
+            position: fixed; top: 20px; right: 20px;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 10px 15px; border-radius: 50px;
+            cursor: pointer; font-size: 12px; font-weight: 700; z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* --- The Animated Ticket --- */
+        .neon-card {
+            background: var(--card-dark);
+            width: 100%;
+            max-width: 900px;
+            border-radius: 30px;
+            border: 4px solid var(--border-color); 
+            position: relative;
+            padding: 50px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            z-index: 1;
+            /* DO NOT USE OVERFLOW HIDDEN HERE - it can clip the neon glow */
+        }
+
+        /* Backside Ant Effect (Jira style) */
+        .neon-card::after {
+            content: "";
+            position: absolute;
+            bottom: -50px; right: -50px;
+            width: 350px; height: 350px;
+            background: url('https://cdn-icons-png.flaticon.com/512/508/508975.png') no-repeat;
+            background-size: contain;
+            opacity: 0;
+            filter: grayscale(1) invert(0.5);
+            transition: all 0.8s ease;
+            transform: rotate(20deg);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .neon-card:hover::after {
+            opacity: 0.1;
+            transform: rotate(0deg) scale(1.1);
+        }
+
+        /* --- THE BORDER FIX --- */
+        .neon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 40px var(--neon-glow);
+            
+            /* This part forces the gradient to follow the 30px curves */
+            border-color: transparent;
+            background-image: 
+                linear-gradient(var(--card-dark), var(--card-dark)), 
+                linear-gradient(to right, var(--google-blue), var(--google-red), var(--google-yellow), var(--google-green));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        /* --- Header Glows --- */
+        .header-box { text-align: center; margin-bottom: 45px; }
+        .header-box h2 { 
+            font-size: 38px; font-weight: 700; margin: 0;
+            background: linear-gradient(to right, var(--text-main), var(--text-gray));
+           background-clip: text;
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+        }
+        .header-box p { color: var(--google-blue); font-family: 'JetBrains Mono', monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; margin-top: 10px; }
+
+        /* --- Form Elements --- */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .full-width { grid-column: span 2; }
+
+        label { 
+            font-size: 12px; font-weight: 700; color: var(--text-gray); 
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block;
+        }
+
+        input, select, textarea {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 15px; color: var(--text-main); font-size: 15px; outline: none;
+        }
+
+        input:focus, textarea:focus { border-color: var(--google-blue); box-shadow: 0 0 15px var(--neon-glow); }
+        select:focus { border-color: var(--google-yellow); box-shadow: 0 0 15px rgba(251, 188, 5, 0.2); }
+
+        /* --- Interactive Screenshot Upload --- */
+        .upload-zone {
+            border: 2px dashed var(--border-color); border-radius: 15px; padding: 30px;
+            text-align: center; cursor: pointer; background: var(--input-bg);
+            display: block; /* Ensures it fills the width */
+        }
+        .upload-zone:hover { 
+            border-color: var(--google-green); 
+            background: rgba(52, 168, 83, 0.05);
+            box-shadow: 0 0 20px rgba(52, 168, 83, 0.1);
+        }
+        .upload-zone input { display: none; }
+        .upload-text { color: var(--google-green); font-weight: 600; font-size: 14px; }
+
+        /* --- Submit Button (Ultra Neon) --- */
+        .btn-submit {
+            width: 100%; margin-top: 40px; padding: 18px; border: none;
+            border-radius: 15px; background: var(--google-blue); color: white;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+            position: relative; overflow: hidden;
+        }
+
+        .btn-submit:hover {
+            background: #5a95f5;
+            box-shadow: 0 0 30px var(--neon-glow);
+            transform: scale(1.02);
+        }
+
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+    <button class="theme-btn" id="themeBtn">🌓 TOGGLE THEME</button>
+
+    <div class="neon-card">
+        <div class="header-box">
+            <h2>NEW TICKET</h2>
+            <p>// Protocol: Bug_Reporting_Sequence</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    <label>Title</label>
+                    <input type="text" name="title" placeholder="What broke?">
+                </div>
+
+                <div class="input-group full-width">
+                    <label>Description</label>
+                    <textarea name="description" placeholder="System logs or behavior details..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Project</label>
+                    <select name="project_id">
+                        {% for project in projects %}
+                        <option value="{{project.id}}">{{project.project_name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Repository URL</label>
+                    <input type="url" name="project_url" placeholder="https://...">
+                </div>
+
+                <div class="input-group">
+                    <label>Priority</label>
+                    <select name="priority">
+                        <option style="color: #34A853;">Low</option>
+                        <option style="color: #FBBC05;">Medium</option>
+                        <option style="color: #EA4335;">High</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Expected Result</label>
+                    <textarea name="expected_result"></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Actual Result</label>
+                    <textarea name="actual_result"></textarea>
+                </div>
+
+                <div class="input-group full-width">
+                    <label>Evidence (Screenshot)</label>
+                    <label class="upload-zone">
+                        <span class="upload-text">DRAG OR CLICK TO UPLOAD IMAGE</span>
+                        <input type="file" name="screenshot">
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">INITIALIZE REPORT</button>
+        </form>
+    </div>
+
+    <script>
+        const themeBtn = document.getElementById('themeBtn');
+        const doc = document.documentElement;
+
+        themeBtn.addEventListener('click', () => {
+            const current = doc.getAttribute('data-theme');
+            doc.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+        });
+    </script>
+</body>
+</html>

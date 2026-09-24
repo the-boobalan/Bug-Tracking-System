@@ -1,0 +1,356 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Dashboard | BTS Enterprise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4285F4;
+            --g-red: #EA4335;
+            --g-yellow: #FBBC05;
+            --g-green: #34A853;
+            --bg-black: #050505;
+            --card-bg: #0a0a0a;
+            --sidebar-bg: rgba(0, 0, 0, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: #888888;
+            --input-bg: #000000;
+            --sidebar-width: 250px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg-black: #f8f9fa;
+            --card-bg: #ffffff;
+            --sidebar-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --text-main: #202124;
+            --text-dim: #5f6368;
+            --primary: #1a73e8;
+            --input-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; display: flex; 
+            background: var(--bg-black); color: var(--text-main);
+            transition: var(--transition); min-height: 100vh;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: var(--sidebar-width); background: var(--sidebar-bg);
+            backdrop-filter: blur(10px); position: fixed; height: 100%;
+            padding: 30px 0; display: flex; flex-direction: column;
+            border-right: 1px solid var(--glass-border); z-index: 100;
+        }
+
+        .sidebar h2 { 
+            font-family: 'Product Sans', sans-serif; padding: 0 25px; 
+            font-size: 22px; color: var(--primary); margin-bottom: 40px; 
+        }
+
+        .sidebar a {
+            padding: 14px 25px; color: var(--text-dim); text-decoration: none;
+            display: block; font-size: 14px; transition: var(--transition);
+        }
+
+        .sidebar a:hover { color: var(--primary); background: rgba(66, 133, 244, 0.05); }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: var(--sidebar-width); padding: 40px 60px;
+            width: calc(100% - var(--sidebar-width));
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .username-professional {
+            color: var(--primary);
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            border-bottom: 0.2px solid rgba(63, 64, 65, 0.2);
+        }
+
+        .google-hover-border {
+            border: 0.5px solid var(--glass-border); 
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .google-hover-border:hover {
+            border-color: transparent;
+            background-image: linear-gradient(var(--card-bg), var(--card-bg)), 
+                              linear-gradient(to right, #4285F4, #EA4335, #FBBC05, #34A853);
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .controls-bar, .table-container, .kanban-column, .kanban-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 0.5px solid var(--glass-border);
+        }
+
+        .controls-bar { display: flex; gap: 15px; margin-bottom: 25px; padding: 1px; }
+
+        .search-input {
+            flex-grow: 1; padding: 12px 20px; border-radius: 8px;
+            background: rgba(128, 128, 128, 0.05); color: inherit;
+            border: 0.5px solid var(--glass-border); outline: none; transition: var(--transition);
+        }
+
+        .search-input:focus { border-color: var(--primary); }
+
+        .theme-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;
+        }
+
+        /* --- Updated Table Border & Containment Logic --- */
+        /* --- Updated Table Border & Containment Logic --- */
+        .table-container { 
+            overflow: hidden; 
+            margin-bottom: 30px; 
+            border-radius: 16px; 
+            width: 100%;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0;
+            table-layout: fixed; /* 👈 Forces columns to respect set widths */
+        }
+
+        th, td { 
+            padding: 18px 15px; 
+            text-align: left; 
+            border-bottom: 0.5px solid var(--glass-border); 
+            word-wrap: break-word; /* 👈 Forces long unbroken text to wrap */
+            overflow-wrap: break-word; /* 👈 Fallback for modern browsers */
+        }
+
+        /* Set strict percentages so columns stay contained */
+        th:nth-child(1), td:nth-child(1) { width: 10%; } 
+        th:nth-child(2), td:nth-child(2) { width: 25%; } 
+        th:nth-child(3), td:nth-child(3) { width: 35%; } 
+        th:nth-child(4), td:nth-child(4) { width: 15%; } 
+        th:nth-child(5), td:nth-child(5) { width: 15%; } 
+
+        th { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); background: rgba(128,128,128,0.02); }
+
+        tr:last-child td { border-bottom: none; }
+        /* Remove border from the last row to prevent double lines at bottom */
+        
+
+        /* --- REFINED KANBAN UI --- */
+        .kanban-container { 
+            display: flex; gap: 40px; overflow-x: auto; padding: 20px 20px; align-items: flex-start;
+        }
+        
+        .kanban-column { 
+            flex: 0 0 320px; padding: 1px; min-height: 400px; 
+            display: flex; flex-direction: column; 
+            background: rgba(128, 128, 128, 0.02);
+            border-radius: 16px;
+        }
+
+        .kanban-card { 
+            margin-left: 10px;
+            margin-right: 10px;
+            padding: 16px; margin-bottom: 12px;
+            background: var(--card-bg);
+            border: 0.5px solid var(--glass-border);
+            border-radius: 12px;
+            transition: var(--transition);
+        }
+
+        .kanban-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+
+        .column-add-box { 
+            margin-top: auto; padding-top: 20px; 
+            padding-left: 10px; padding-right: 10px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+
+        .column-textarea {
+            width: 100%; height: 80px; background: var(--input-bg); 
+            margin-bottom: 25px;
+            border: 0.5px solid var(--glass-border); border-radius: 8px; 
+            color: var(--text-main); padding: 12px; font-size: 13px; 
+            resize: none; outline: none; transition: var(--transition);
+        }
+
+        .column-textarea:focus { border-color: var(--primary); }
+
+        @media (max-width: 760px) {
+            body { display: block; }
+            .sidebar {
+                position: static; width: 100%; height: auto; padding: 10px;
+                flex-direction: row; align-items: center; gap: 4px;
+                overflow-x: auto; white-space: nowrap;
+            }
+            .sidebar h2 { padding: 0 12px; margin: 0; font-size: 18px; }
+            .sidebar a { padding: 10px 12px; font-size: 12px; flex: 0 0 auto; }
+            .main-content { margin-left: 0; width: 100%; padding: 24px 14px; }
+            .main-content > header { flex-wrap: wrap; gap: 16px; }
+            .main-content h1 { font-size: 26px; }
+            .controls-bar { flex-wrap: wrap; padding: 8px; }
+            .controls-bar .search-input { width: 100% !important; flex-basis: 100%; }
+            .table-container { overflow-x: auto; }
+            .table-container table { min-width: 680px; }
+            .kanban-container { gap: 14px; padding: 12px 4px; }
+            .kanban-column { flex-basis: min(320px, 84vw); }
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+<aside class="sidebar">
+    <h2>BTS Enterprise</h2>
+    <a href="{% url 'home' %}"><span>Home</span></a>
+    <a href="{% url 'admin_dashboard' %}"><span>Admin Dashboard</span></a>
+    <a href="{% url 'manager_dashboard' %}"><span>Manager Dashboard</span></a>
+    <a href="{% url 'developer_dashboard' %}"><span>Developer Dashboard</span></a>
+    <a href="{% url 'tester_dashboard' %}"><span>Tester Dashboard</span></a>
+    <a href="{% url 'history-discussion' %}"><span>History & Discussion</span></a>
+    
+    <a href="{% url 'logout' %}" style="margin-top:auto; color:#EA4335;"><span>Logout</span></a>
+</aside>
+
+<div class="main-content">
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;">
+        <h1 style="font-family: 'Product Sans', sans-serif;">Welcome, <span class="username-professional">{{ request.session.username }}</span></h1>
+        <button id="theme-toggle" class="theme-btn">🌙 Dark Mode</button>
+    </header>
+
+    <div class="controls-bar google-hover-border">
+        <input type="text" id="bugSearch" class="search-input" placeholder="Search bugs by title or project...">
+        <select id="priorityFilter" class="search-input" style="flex-grow: 0; width: 180px; background-color: var(--card-bg); color: var(--text-dim);">
+            <option value="all">All Priorities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+        </select>
+    </div>
+
+    <h2>Projects</h2>
+    <div class="table-container google-hover-border">
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Name</th><th>Description</th><th>Manager</th><th>Deadline</th></tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr class="project-row">
+                    <td style="color: var(--primary);">#{{ project.id }}</td>
+                    <td><strong>{{ project.project_name }}</strong></td>
+                    <td>{{ project.description }}</td>
+                    <td>{{ project.manager.username }}</td>
+                    <td>{{ project.deadline }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2>To Do List</h2>
+    <div class="kanban-container">
+        <div class="kanban-column google-hover-border">
+            <h3 style="font-family: 'Product Sans'; font-size: 15px; padding: 10px; color: var(--primary);">To Do</h3>
+            <div class="cards-wrapper">
+                {% for bug in kanban_board.todo %}
+                <div class="kanban-card">
+                    <strong>{{ bug.title }}</strong>
+                    <p style="font-size: 13px; color: var(--text-dim); margin: 8px 0;">{{ bug.description }}</p>
+                    <small style="display:block; margin-bottom: 4px;">Project: {{ bug.project.project_name }}</small>
+                    <small>Priority: {{ bug.priority }}</small>
+                    <div style="margin-top:12px; border-top: 0.5px solid var(--glass-border); padding-top: 10px;">
+                        <a href="{% url 'bug_history' bug.id %}" style="text-decoration: none; color: var(--primary); font-size: 12px;">View Details</a>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="padding:10px; font-size: 13px; color: var(--text-dim);">No bugs</p>
+                {% endfor %}
+            </div>
+            <div class="column-add-box">
+                <textarea class="column-textarea" placeholder="Add a bug summary..."></textarea>
+            </div>
+        </div>
+
+        <div class="kanban-column google-hover-border">
+            <h3 style="font-family: 'Product Sans'; font-size: 15px; padding: 10px; color: var(--g-yellow);">In Progress</h3>
+            <div class="cards-wrapper">
+                {% for bug in kanban_board.progress %}
+                <div class="kanban-card">
+                    <strong>{{ bug.title }}</strong>
+                    <p style="font-size: 13px; color: var(--text-dim); margin: 8px 0;">{{ bug.description }}</p>
+                    <div style="margin-top:12px; border-top: 0.5px solid var(--glass-border); padding-top: 10px;">
+                        <a href="{% url 'bug_history' bug.id %}" style="text-decoration: none; color: var(--primary); font-size: 12px;">View Details</a>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="padding:10px; font-size: 13px; color: var(--text-dim);">No bugs</p>
+                {% endfor %}
+            </div>
+            <div class="column-add-box">
+                <textarea class="column-textarea" placeholder="Add a bug summary..."></textarea>
+            </div>
+        </div>
+
+        <div class="kanban-column google-hover-border">
+            <h3 style="font-family: 'Product Sans'; font-size: 15px; padding: 10px; color: var(--g-green);">Done</h3>
+            <div class="cards-wrapper">
+                {% for bug in kanban_board.done %}
+                <div class="kanban-card">
+                    <strong>{{ bug.title }}</strong>
+                    <p style="font-size: 13px; color: var(--text-dim); margin: 8px 0;">{{ bug.description }}</p>
+                    <div style="margin-top:12px; border-top: 0.5px solid var(--glass-border); padding-top: 10px;">
+                        <a href="{% url 'bug_history' bug.id %}" style="text-decoration: none; color: var(--primary); font-size: 12px;">View Details</a>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="padding:10px; font-size: 13px; color: var(--text-dim);">No bugs</p>
+                {% endfor %}
+            </div>
+            <div class="column-add-box">
+                <textarea class="column-textarea" placeholder="Add a bug summary..."></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const toggleBtn = document.getElementById('theme-toggle');
+    toggleBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        toggleBtn.textContent = newTheme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode';
+    });
+
+    const searchInput = document.getElementById('bugSearch');
+    searchInput.addEventListener('input', function() {
+        const query = searchInput.value.toLowerCase();
+        document.querySelectorAll('.project-row, .kanban-card').forEach(item => {
+            item.style.display = item.innerText.toLowerCase().includes(query) ? "" : "none";
+        });
+    });
+</script>
+    <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>

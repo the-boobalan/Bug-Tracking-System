@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0a0b;
+            --card-dark: #161618;
+            --text-main: #e8eaed;
+            --text-gray: #9AA0A6;
+            --border-color: #2d2d30;
+            --input-bg: #0f0f11;
+            --google-blue: #4285F4;
+            --google-red: #EA4335;
+            --google-yellow: #FBBC05;
+            --google-green: #34A853;
+            --neon-glow: rgba(66, 133, 244, 0.4);
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #f8f9fa;
+            --card-dark: #ffffff;
+            --text-main: #202124;
+            --text-gray: #5f6368;
+            --border-color: #dadce0;
+            --input-bg: #f1f3f4;
+            --neon-glow: rgba(66, 133, 244, 0.1);
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body { 
+            font-family: 'Google Sans', sans-serif; 
+            margin: 0; 
+            background: var(--bg-dark); 
+            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 20px;
+            background-image: radial-gradient(rgba(128,128,128,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .theme-btn {
+            position: fixed; top: 15px; right: 15px;
+            background: var(--card-dark); border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 6px 12px; border-radius: 30px;
+            cursor: pointer; font-size: 10px; font-weight: 700; z-index: 1000;
+        }
+
+        .container-wrapper { width: 100%; max-width: 400px; }
+
+        .neon-card {
+            background: var(--card-dark);
+            border-radius: 30px;
+            border: 4px solid var(--border-color);
+            position: relative;
+            padding: 50px 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .neon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 40px var(--neon-glow);
+            border-color: transparent;
+            background-image: 
+                linear-gradient(var(--card-dark), var(--card-dark)), 
+                linear-gradient(to right, var(--google-blue), var(--google-red), var(--google-yellow), var(--google-green));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        h1 { 
+            font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 5px;
+            background: linear-gradient(to right, var(--text-main), var(--text-gray));
+            background-clip: text;
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+        }
+
+        .subtitle { 
+            color: var(--google-blue); font-family: 'JetBrains Mono', monospace; 
+            font-size: 11px; text-align: center; text-transform: uppercase; 
+            letter-spacing: 2px; margin-bottom: 30px; display: block;
+        }
+
+        label { 
+            font-size: 11px; font-weight: 700; color: var(--text-gray); 
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block;
+        }
+
+        input {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 14px; color: var(--text-main); font-size: 15px; 
+            outline: none; margin-bottom: 20px;
+            font-family: 'Google Sans', sans-serif;
+        }
+
+        input:focus { border-color: var(--google-blue); box-shadow: 0 0 15px var(--neon-glow); }
+
+        button[type="submit"] {
+            width: 100%; padding: 16px; border: none; border-radius: 15px;
+            background: var(--google-blue); color: white; font-size: 16px; font-weight: 700;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+            font-family: 'Google Sans', sans-serif;
+        }
+
+        button[type="submit"]:hover { background: #5a95f5; transform: scale(1.02); }
+
+        .reg-link { 
+            display: block; text-align: center; margin-top: 25px; 
+            color: var(--google-blue); text-decoration: none; font-weight: 700; font-size: 14px;
+        }
+        .reg-link:hover { text-decoration: underline; }
+
+        ul { list-style: none; padding: 0; }
+        .error-msg { 
+            color: var(--google-red); text-align: center; font-size: 13px; 
+            margin-bottom: 15px; background: rgba(234, 67, 53, 0.1); 
+            padding: 10px; border-radius: 8px; border: 1px solid rgba(234, 67, 53, 0.2);
+        }
+
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+    <button class="theme-btn" id="themeBtn">🌓 THEME</button>
+
+    <div class="container-wrapper">
+        <div class="neon-card">
+            <h1>Login</h1>
+            <span class="subtitle">// Access_Terminal</span>
+
+            {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li class="error-msg">{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <label>Username</label>
+                <input type="text" name="username" required placeholder="User_ID">
+
+                <label>Password</label>
+                <input type="password" name="password" required placeholder="••••••••">
+
+                <button type="submit">Login</button>
+            </form>
+
+            <a href="{% url 'register' %}" class="reg-link">Create Account</a>
+        </div>
+    </div>
+
+    <script>
+        const themeBtn = document.getElementById('themeBtn');
+        const doc = document.documentElement;
+
+        themeBtn.addEventListener('click', () => {
+            const current = doc.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            doc.setAttribute('data-theme', next);
+        });
+    </script>
+</body>
+</html>

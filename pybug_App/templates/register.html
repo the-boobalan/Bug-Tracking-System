@@ -1,0 +1,229 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* DARK MODE */
+            --bg-dark: #0a0a0b;
+            --card-dark: #161618;
+            --text-main: #e8eaed;
+            --text-gray: #9AA0A6;
+            --border-color: #2d2d30;
+            --input-bg: #0f0f11;
+            --google-blue: #4285F4;
+            --google-red: #EA4335;
+            --google-yellow: #FBBC05;
+            --google-green: #34A853;
+            --neon-glow: rgba(66, 133, 244, 0.4);
+            --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%239AA0A6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        }
+
+        /* LIGHT MODE */
+        [data-theme="light"] {
+            --bg-dark: #f8f9fa;
+            --card-dark: #ffffff;
+            --text-main: #202124;
+            --text-gray: #5f6368;
+            --border-color: #dadce0;
+            --input-bg: #f1f3f4;
+            --neon-glow: rgba(66, 133, 244, 0.1);
+        }
+
+        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        body { 
+            font-family: 'Google Sans', sans-serif; 
+            margin: 0; 
+            background: var(--bg-dark); 
+            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 40px 20px;
+            background-image: radial-gradient(rgba(128,128,128,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* --- Theme Switcher Button --- */
+        .theme-btn {
+            position: fixed; top: 15px; right: 15px;
+            background: var(--card-dark); border: 1px solid var(--border-color);
+            color: var(--text-main); 
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer; 
+            font-size: 10px;
+            font-weight: 700; z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            letter-spacing: 0.5px;
+            font-family: 'Google Sans', sans-serif;
+        }
+
+        /* --- The Main Card --- */
+        .neon-card {
+            background: var(--card-dark);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 30px;
+            border: 4px solid var(--border-color);
+            position: relative;
+            padding: 50px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            z-index: 1;
+        }
+
+        .neon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 40px var(--neon-glow);
+            border-color: transparent;
+            background-image: 
+                linear-gradient(var(--card-dark), var(--card-dark)), 
+                linear-gradient(to right, var(--google-blue), var(--google-red), var(--google-yellow), var(--google-green));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+        }
+
+        h1 { 
+            font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 10px;
+            background: linear-gradient(to right, var(--text-main), var(--text-gray));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle { 
+            color: var(--google-blue); font-family: 'JetBrains Mono', monospace; 
+            font-size: 12px; text-align: center; text-transform: uppercase; 
+            letter-spacing: 2px; margin-bottom: 35px; display: block;
+        }
+
+        /* --- Form Elements --- */
+        label { 
+            font-size: 11px; font-weight: 700; color: var(--text-gray); 
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block;
+        }
+
+        input, select {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 14px; color: var(--text-main); font-size: 15px; outline: none;
+            margin-bottom: 20px;
+            font-family: 'Google Sans', sans-serif;
+        }
+
+        /* --- FIXED CURVED SELECT STYLE --- */
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: var(--select-arrow);
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 18px;
+            cursor: pointer;
+            border-radius: 15px; /* Forced Curve */
+            overflow: hidden; /* Ensures options clipping respects border radius in some browsers */
+        }
+
+        /* Styles for the options list */
+        select option {
+            background-color: var(--card-dark);
+            color: var(--text-main);
+            padding: 12px;
+            font-family: 'Google Sans', sans-serif;
+            border-radius: 10px; /* Note: Only works on certain browsers (like Firefox) */
+        }
+
+        input:focus, select:focus { 
+            border-color: var(--google-blue); 
+            box-shadow: 0 0 15px var(--neon-glow); 
+            border-radius: 15px;
+        }
+
+        button[type="submit"] {
+            width: 100%; padding: 16px; border: none; border-radius: 15px;
+            background: var(--google-blue); color: white; font-size: 16px; font-weight: 700;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+            margin-top: 10px;
+            font-family: 'Google Sans', sans-serif;
+        }
+
+        button[type="submit"]:hover { background: #5a95f5; transform: scale(1.02); }
+
+        /* --- Messages & Links --- */
+        ul { list-style: none; padding: 0; margin-top: 20px; }
+        li { 
+            padding: 10px; border-radius: 8px; background: rgba(234, 67, 53, 0.1); 
+            color: var(--google-red); font-size: 13px; text-align: center; border: 1px solid rgba(234, 67, 53, 0.2);
+        }
+
+        .login-link { 
+            display: block; text-align: center; margin-top: 25px; 
+            color: var(--google-blue); text-decoration: none; font-weight: 700; font-size: 14px;
+        }
+        .login-link:hover { text-decoration: underline; }
+
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+    <button class="theme-btn" id="themeBtn">🌓 THEME</button>
+
+    <div class="neon-card">
+        <h1>Registration</h1>
+        <span class="subtitle">// Protocol: User_Onboarding</span>
+
+        <form action="{% url 'register' %}" method="POST">
+            {% csrf_token %}
+
+            <label>Full Name</label>
+            <input type="text" name="username" required>
+
+            <label>Email</label>
+            <input type="email" name="email" required>
+
+            <label>Password</label>
+            <input type="password" name="password" required>
+
+            <label>Confirm Password</label>
+            <input type="password" name="confirm_password" required>
+
+            <label>Role</label>
+            <select name="role" required>
+                <option value="" disabled selected>Select Role</option>
+                <option value="manager">Manager</option>
+                <option value="developer">Developer</option>
+                <option value="tester">Tester</option>
+            </select>
+
+            <button type="submit">Register</button>
+        </form>
+
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <a href="{% url 'login' %}" class="login-link">Already a member? Login</a>
+    </div>
+
+    <script>
+        const themeBtn = document.getElementById('themeBtn');
+        const doc = document.documentElement;
+
+        themeBtn.addEventListener('click', () => {
+            const current = doc.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            doc.setAttribute('data-theme', next);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,295 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assemble Team | BTS Enterprise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4285F4;
+            --bg-dark: #030303;
+            --card-bg: rgba(10, 10, 10, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --text-main: #f5f5f7;
+            --text-dim: #86868b;
+            --transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            --body-bg: radial-gradient(circle at 50% 50%, #111 0%, #000 100%);
+        }
+
+        /* Light Theme Overrides */
+        [data-theme="light"] {
+            --bg-dark: #f5f5f7;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --text-main: #1d1d1f;
+            --text-dim: #6e6e73;
+            --body-bg: radial-gradient(circle at 50% 50%, #fff 0%, #f5f5f7 100%);
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--body-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+            transition: var(--transition);
+        }
+
+        /* --- Theme Toggle Icon --- */
+        #themeToggle {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+        #themeToggle:hover { transform: scale(1.1); }
+
+        h2 { 
+            font-family: 'Product Sans', sans-serif; 
+            font-size: 36px; 
+            font-weight: 700;
+            background: linear-gradient(to bottom, var(--text-main) 30%, var(--text-dim) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+            margin-bottom: 25px;
+        }
+
+        /* --- BTS Enterprise Form Card --- */
+        form {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            width: 100%;
+            max-width: 720px; 
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        form::after {
+            content: "";
+            position: absolute;
+            inset: -1px;
+            border-radius: 24px;
+            padding: 1px; 
+            background: linear-gradient(135deg, #4285F4, #EA4335, #FBBC05, #34A853);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.15;
+            transition: var(--transition);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        form:hover::after { opacity: 0.8; }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 20px;
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 18px;
+            margin-top: 8px;
+            background: rgba(128, 128, 128, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            outline: none;
+            font-size: 15px;
+            transition: var(--transition);
+            position: relative;
+            z-index: 2;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            background: rgba(66, 133, 244, 0.05);
+            box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.1);
+        }
+
+        /* FIX: Ensures dropdown options follow theme background instead of default white */
+        option {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 10px;
+        }
+
+        select[multiple] {
+            height: 160px; 
+            scrollbar-width: none; 
+            overflow-y: auto;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        select[multiple]::-webkit-scrollbar { display: none; }
+
+        /* Multiple select options styling */
+        .click-select option {
+            padding: 10px 14px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            background: rgba(128, 128, 128, 0.05);
+            transition: var(--transition);
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        option:checked {
+            background: var(--primary) !important;
+            color: white !important;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 35px;
+            padding: 16px;
+            background: var(--text-main);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            transition: var(--transition);
+            position: relative;
+            z-index: 2;
+        }
+
+        button:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(66, 133, 244, 0.3);
+        }
+
+        .back-link {
+            margin-top: 30px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+            z-index: 2;
+        }
+
+        .back-link:hover { color: var(--primary); }
+
+        @media (max-width: 600px) {
+            .selection-grid { grid-template-columns: 1fr; }
+            #themeToggle { right: 20px; top: 20px; }
+        }
+
+        @media (max-width: 700px) {
+            body { padding: 16px; }
+            .selection-grid { grid-template-columns: 1fr; }
+            .selection-grid select { min-height: 130px; }
+            h2 { font-size: 28px; }
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+
+<body>
+
+<div id="themeToggle">🌙</div>
+
+<h2>Assemble Team</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <label>Team Name</label>
+    <input type="text" name="team_name" placeholder="Enter unique team name..." required autocomplete="off">
+
+    <label>Associated Project</label>
+    <select name="project" required>
+        <option value="" disabled selected>Select Project</option>
+        {% for project in projects %}
+        <option value="{{ project.id }}">{{ project.project_name }}</option>
+        {% endfor %}
+    </select>
+
+    <div class="selection-grid">
+        <div>
+            <label>Developers</label>
+            <select name="developers" multiple class="click-select">
+                {% for developer in developers %}
+                <option value="{{ developer.id }}">{{ developer.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label>Testers</label>
+            <select name="testers" multiple class="click-select">
+                {% for tester in testers %}
+                <option value="{{ tester.id }}">{{ tester.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <button type="submit">Create Team</button>
+
+</form>
+
+<a href="{% url 'manager_dashboard' %}" class="back-link">
+    ← Back to Dashboard
+</a>
+
+<script>
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        themeToggle.textContent = isDark ? '☀️' : '🌙';
+    });
+
+    document.querySelectorAll('.click-select option').forEach(option => {
+        option.addEventListener('mousedown', function(e) {
+            e.preventDefault(); 
+            const parent = this.parentElement;
+            const scrollPos = parent.scrollTop;
+            this.selected = !this.selected;
+            setTimeout(() => { parent.scrollTop = scrollPos; }, 0);
+            parent.dispatchEvent(new Event('change'));
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,246 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Team | BTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4285F4;
+            --g-red: #EA4335;
+            --g-green: #34A853;
+            --g-yellow: #FBBC05;
+            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+
+            /* Dark Theme */
+            --bg-body: #000;
+            --card-bg: rgba(15, 15, 15, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f5f5f7;
+            --text-dim: #86868b;
+            --mesh-1: rgba(66, 133, 244, 0.1);
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f5f5f7;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --text-main: #1d1d1f;
+            --text-dim: #6e6e73;
+            --mesh-1: rgba(66, 133, 244, 0.05);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background: var(--bg-body);
+            background-image: radial-gradient(at 0% 0%, var(--mesh-1) 0px, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* --- Form Card --- */
+        .section-card {
+            background: var(--card-bg); 
+            border-radius: 28px; 
+            border: 1px solid var(--glass-border);
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Rainbow Border Effect */
+        .section-card::before {
+            content: "";
+            position: absolute;
+            inset: -1.5px;
+            border-radius: 29px;
+            padding: 1.5px;
+            background: linear-gradient(135deg, var(--primary), var(--g-red), var(--g-yellow), var(--g-green));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.1; /* Subtle visible border by default */
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .section-card:hover::before { opacity: 1; }
+
+        h2 {
+            font-family: 'Product Sans', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 30px;
+            background: linear-gradient(to bottom, var(--text-main) 40%, var(--text-dim) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        /* --- Form Elements --- */
+        .form-group { margin-bottom: 20px; text-align: left; }
+
+        label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: var(--transition);
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        /* --- Hiding Scrollbars --- */
+        select[multiple] {
+            height: 140px;
+            padding: 8px;
+            -ms-overflow-style: none;  /* IE/Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        select[multiple]::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Opera */
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            background: rgba(66, 133, 244, 0.05);
+        }
+
+        option { 
+            background: #111; 
+            color: var(--text-main); 
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            margin-top: 10px;
+            border-radius: 14px;
+            border: none;
+            background: var(--text-main);
+            color: var(--bg-body);
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(66, 133, 244, 0.3);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .back-link:hover { color: var(--primary); }
+
+        .hint { font-size: 10px; color: var(--text-dim); margin-top: 6px; display: block; opacity: 0.8; }
+        @media (max-width: 700px) {
+            body { padding: 16px; }
+            .selection-grid { grid-template-columns: 1fr; }
+            .selection-grid select { min-height: 130px; }
+            h2 { font-size: 28px; }
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+
+    <div class="section-card">
+        <h2>Update Team</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Team Name</label>
+                <input type="text" name="team_name" value="{{ team.team_name }}" placeholder="Enter squad name..." required>
+            </div>
+
+            <div class="form-group">
+                <label>Project</label>
+                <select name="project" required>
+                    {% for project in projects %}
+                    <option value="{{ project.id }}" {% if team.project.id == project.id %}selected{% endif %}>
+                        {{ project.project_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Developers</label>
+                <select name="developers" multiple required>
+                    {% for developer in developers %}
+                    <option value="{{ developer.id }}" {% if developer.id in selected_devs %}selected{% endif %}>
+                        {{ developer.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <span class="hint">Hold Ctrl/Cmd to select • Scroll to view more</span>
+            </div>
+
+            <div class="form-group">
+                <label>Testers</label>
+                <select name="testers" multiple required>
+                    {% for tester in testers %}
+                    <option value="{{ tester.id }}" {% if tester.id in selected_testers %}selected{% endif %}>
+                        {{ tester.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <span class="hint">Hold Ctrl/Cmd to select • Scroll to view more</span>
+            </div>
+
+            <button type="submit">Update Identity</button>
+        </form>
+
+        <a href="{% url 'dashboard' %}" class="back-link">← Return to Dashboard</a>
+    </div>
+
+</body>
+</html>
