@@ -234,7 +234,7 @@
 
 <div class="main-content">
     <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;">
-        <h1 style="font-family: 'Product Sans', sans-serif;">Welcome, <span class="username-professional">{{ request.session.username }}</span></h1>
+        <h1 style="font-family: 'Product Sans', sans-serif;">Welcome, <span class="username-professional">{{ request.session.username | title }}</span></h1>
         <button id="theme-toggle" class="theme-btn">🌙 Dark Mode</button>
     </header>
 
@@ -306,7 +306,7 @@
                         <td>
                             {% if item.team.project.repository_link %}
                                 <a href="{{ item.team.project.repository_link }}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: none;">
-                                    {{ item.team.project.project_name }} URL
+                                    {{ item.team.project.project_name }} - URL
                                 </a>
                             {% else %}
                                 <span style="color: var(--text-dim);">No repository link</span>
