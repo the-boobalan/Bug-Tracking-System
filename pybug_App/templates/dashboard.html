@@ -268,6 +268,60 @@
         </table>
     </div>
 
+    <h2>Team Details</h2>
+    <div class="table-container google-hover-border">
+        <table>
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Team</th>
+                    <th>Developers</th>
+                    <th>Testers</th>
+                    <th>Repository URL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in team_data %}
+                    <tr class="project-row">
+                        <td><strong>{{ item.team.project.project_name }}</strong></td>
+                        <td>{{ item.team.team_name }}</td>
+                        <td>
+                            {% if item.developers %}
+                                {% for member in item.developers %}
+                                    {{ member.user.username }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span style="color: var(--text-dim);">No developers</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.testers %}
+                                {% for member in item.testers %}
+                                    {{ member.user.username }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span style="color: var(--text-dim);">No testers</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.team.project.repository_link %}
+                                <a href="{{ item.team.project.repository_link }}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: none;">
+                                    {{ item.team.project.project_name }} URL
+                                </a>
+                            {% else %}
+                                <span style="color: var(--text-dim);">No repository link</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" style="color: var(--text-dim); text-align: center;">No team details available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     <h2>To Do List</h2>
     <div class="kanban-container">
         <div class="kanban-column google-hover-border">

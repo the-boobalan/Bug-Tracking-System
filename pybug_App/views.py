@@ -52,7 +52,7 @@ def register(request):
         confirm_password = request.POST.get("confirm_password")
         role = request.POST.get("role", "").lower()
 
-        if role not in {'admin',"manager", "developer", "tester"}:
+        if role not in {"admin","manager", "developer", "tester"}:
             messages.error(request, "Please select a valid role")
             return redirect("register")
 
