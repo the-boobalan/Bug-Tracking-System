@@ -1,5 +1,4 @@
 
-
 [project]
 name = "pybug-trackz"
 version = "1.0.0"
@@ -20,4 +19,5 @@ dependencies = [
 
 [tool.vercel]
 entrypoint = "bug_tracking_system.wsgi:application"
+
 
