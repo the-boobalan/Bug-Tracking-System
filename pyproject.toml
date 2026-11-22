@@ -17,7 +17,5 @@ dependencies = [
     "tzdata==2025.3"
 ]
 
-[tool.vercel]
-entrypoint = "bug_tracking_system.wsgi:application"
 
 
