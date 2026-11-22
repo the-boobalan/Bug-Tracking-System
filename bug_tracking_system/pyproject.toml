@@ -1,0 +1,20 @@
+[project]
+name = "pybug-trackz"
+version = "1.0.0"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "Django==5.2.8",
+    "asgiref==3.11.1",
+    "channels==4.3.2",
+    "PyMySQL>=1.1.1",
+    "dj-database-url>=2.3,<4",
+    "psycopg[binary]>=3.2,<4",
+    "python-dotenv==1.1.1",
+    "whitenoise==6.11.0",
+    "pillow==12.2.0",
+    "sqlparse==0.5.5",
+    "tzdata==2025.3"
+]
+
+[tool.vercel]
+entrypoint = "bug_tracking_system.wsgi:application"
