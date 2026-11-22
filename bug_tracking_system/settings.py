@@ -14,10 +14,14 @@ import os
 import sys
 from pathlib import Path
 
+import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env.local")
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -67,6 +71,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -94,6 +99,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bug_tracking_system.wsgi.application'
 ASGI_APPLICATION = 'bug_tracking_system.asgi.application'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTHENTICATION_BACKENDS = [
     'pybug_App.backends.RegisterModelBackend',
@@ -110,13 +116,26 @@ if "test" in sys.argv:
             'NAME': ':memory:',
         }
     }
+elif os.getenv("DATABASE_URL"):
+    DATABASES = {
+        'default': dj_database_url.parse(
+            os.environ["DATABASE_URL"],
+            conn_max_age=600,
+            ssl_require=not DEBUG,
+        )
+    }
+elif not DEBUG:
+    raise ImproperlyConfigured(
+        "Set DATABASE_URL to a reachable hosted PostgreSQL database when "
+        "DJANGO_DEBUG=False"
+    )
 else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': os.getenv('MYSQL_NAME', 'pybug_App_db'),
             'USER': os.getenv('MYSQL_USER', 'root'),
-            'PASSWORD': os.getenv('MYSQL_PASSWORD', 'boobala7636'),
+            'PASSWORD': os.getenv('MYSQL_PASSWORD', ''),
             'HOST': os.getenv('MYSQL_HOST', 'localhost'),
             'PORT': os.getenv('MYSQL_PORT', '3306')
         }
@@ -157,8 +176,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+}
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -167,6 +190,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", default=not DEBUG)
 SESSION_COOKIE_SECURE = env_bool("DJANGO_SESSION_COOKIE_SECURE", default=not DEBUG)
 CSRF_COOKIE_SECURE = env_bool("DJANGO_CSRF_COOKIE_SECURE", default=not DEBUG)
+CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", default=())
 SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_SECURE_HSTS_SECONDS", "31536000" if not DEBUG else "0"))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool(
     "DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=not DEBUG
