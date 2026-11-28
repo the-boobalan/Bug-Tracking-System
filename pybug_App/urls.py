@@ -55,10 +55,9 @@ urlpatterns = [
 
     path("bug/<int:bug_id>/add-comment/", views.add_comment, name="add_comment"),
 
-    path('History-Discussion/', views.all_view_histories, name='history-discussion'),
+    path('history-discussion/', views.all_view_histories, name='history-discussion'),
 
     
-
 ]
 
    
