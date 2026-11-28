@@ -45,7 +45,7 @@ def env_list(name, default=()):
 
 
 # Local development remains convenient, but production must provide its own key.
-DEBUG = env_bool("DJANGO_DEBUG", default=False)
+DEBUG = env_bool("DJANGO_DEBUG", default=True)
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     if not DEBUG:
